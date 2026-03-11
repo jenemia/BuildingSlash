@@ -120,4 +120,10 @@
 
 - T1: Completed
 - T2: Completed
-- T3: In Progress
+- T3: Completed
+
+## Verification Notes
+
+- 2026-03-11: `./scripts/build_web.sh`로 웹 export를 생성했다.
+- 2026-03-11: GitHub Pages 내부 `pages build and deployment` 런이 `5e8bb75` 기준 `completed:success` 상태가 됐다.
+- 2026-03-11: `https://jenemia.github.io/BuildingSlash/` 응답 본문이 Jekyll README 페이지가 아니라 Godot Web shell(`GODOT_CONFIG`, `index.js`)로 바뀐 것을 확인했다.
