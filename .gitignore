@@ -1,0 +1,9 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Local workspace files
+.DS_Store
+.openclaw/
+MEMORY.md
+memory/
