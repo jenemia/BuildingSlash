@@ -16,7 +16,7 @@ func _ready() -> void:
 	_validate_input_actions()
 
 func _physics_process(delta: float) -> void:
-	var input_dir := Input.get_axis("move_left", "move_right")
+	var input_dir := _read_move_axis()
 	_apply_horizontal(input_dir, delta)
 	_apply_vertical(delta)
 	_try_jump()
@@ -45,6 +45,19 @@ func _apply_vertical(delta: float) -> void:
 func _try_jump() -> void:
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
+
+func _read_move_axis() -> float:
+	var axis := Input.get_axis("move_left", "move_right")
+	if not is_zero_approx(axis):
+		return axis
+
+	# Fallback: 방향키 직접 입력 (초기 프로토타입 안정성 목적)
+	var fallback := 0.0
+	if Input.is_key_pressed(KEY_LEFT):
+		fallback -= 1.0
+	if Input.is_key_pressed(KEY_RIGHT):
+		fallback += 1.0
+	return fallback
 
 func _validate_input_actions() -> void:
 	var required_actions := ["move_left", "move_right", "jump"]
