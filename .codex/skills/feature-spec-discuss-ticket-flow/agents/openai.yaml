@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feature Spec First"
+  short_description: "Spec first, discuss design, then execute tickets in order"
+  default_prompt: "Create or update the feature implementation markdown first, discuss concerns and decisions with me, then implement tickets sequentially after I confirm."
