@@ -21,7 +21,7 @@
   - 바닥 착지 판정 정상
 
 ### T02. 공격 시스템(근접 1종) + 히트 판정
-- 상태: TODO
+- 상태: IN_PROGRESS
 - 목표: 공격 입력 시 히트박스 생성, 블록 타격
 - 산출물:
   - `scripts/player/player_attack.gd`
@@ -210,4 +210,5 @@
 ## F. 검증 실행 로그 (간단 기록)
 
 - 2026-03-12 08:05 | 대상: T01(로컬 사전검증) | 결과: PASS | Godot headless 실행(`--headless --path ... --quit`) 정상 종료, 입력/씬/스크립트 로드 에러 없음
+- 2026-03-12 08:20 | 대상: T01-모바일조이스틱 확장 | 결과: PASS | 좌측 원형 조이스틱 추가(좌/우/위점프), Player 신호 연동 완료
 - YYYY-MM-DD HH:mm | 대상: Mx | 결과: PASS/PASS WITH WARNINGS/FAIL | 메모

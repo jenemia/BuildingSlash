@@ -10,6 +10,8 @@ extends CharacterBody2D
 
 var is_grounded: bool = false
 var facing: int = 1
+var mobile_axis: float = 0.0
+var mobile_jump_requested: bool = false
 var _debug_accum: float = 0.0
 
 func _ready() -> void:
@@ -43,8 +45,10 @@ func _apply_vertical(delta: float) -> void:
 			velocity.y = max_fall_speed
 
 func _try_jump() -> void:
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	var jump_pressed := Input.is_action_just_pressed("jump") or mobile_jump_requested
+	if jump_pressed and is_on_floor():
 		velocity.y = jump_velocity
+	mobile_jump_requested = false
 
 func _read_move_axis() -> float:
 	var axis := Input.get_axis("move_left", "move_right")
@@ -57,7 +61,16 @@ func _read_move_axis() -> float:
 		fallback -= 1.0
 	if Input.is_key_pressed(KEY_RIGHT):
 		fallback += 1.0
-	return fallback
+	if not is_zero_approx(fallback):
+		return fallback
+
+	return clampf(mobile_axis, -1.0, 1.0)
+
+func set_mobile_move_axis(axis: float) -> void:
+	mobile_axis = clampf(axis, -1.0, 1.0)
+
+func trigger_mobile_jump() -> void:
+	mobile_jump_requested = true
 
 func _validate_input_actions() -> void:
 	var required_actions := ["move_left", "move_right", "jump"]
