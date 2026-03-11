@@ -27,7 +27,6 @@ detect_platform() {
       GODOT_ARCHIVE="Godot_v${GODOT_TAG}_macos.universal.zip"
       DOWNLOADED_GODOT_BIN="${CACHE_DIR}/Godot.app/Contents/MacOS/Godot"
       STANDARD_APP_BIN="/Applications/Godot.app/Contents/MacOS/Godot"
-      MONO_APP_BIN="/Applications/Godot_mono.app/Contents/MacOS/Godot"
       TEMPLATE_DIR="${HOME}/Library/Application Support/Godot/export_templates/${GODOT_TEMPLATE_VERSION}"
       ;;
     Linux)
@@ -47,6 +46,11 @@ resolve_godot_bin() {
     return
   fi
 
+  if [ "$(uname -s)" = "Darwin" ] && [ -x "${STANDARD_APP_BIN}" ]; then
+    GODOT_BIN="${STANDARD_APP_BIN}"
+    return
+  fi
+
   if command -v godot >/dev/null 2>&1; then
     GODOT_BIN="$(command -v godot)"
     return
@@ -60,17 +64,6 @@ resolve_godot_bin() {
   if command -v godot4 >/dev/null 2>&1; then
     GODOT_BIN="$(command -v godot4)"
     return
-  fi
-
-  if [ "${OSTYPE:-}" = "darwin"* ] || [ "$(uname -s)" = "Darwin" ]; then
-    if [ -x "${STANDARD_APP_BIN}" ]; then
-      GODOT_BIN="${STANDARD_APP_BIN}"
-      return
-    fi
-
-    if [ -x "${MONO_APP_BIN}" ]; then
-      log "Found Godot_mono.app, but Web export is safer with the standard editor. Falling back to the official standard build."
-    fi
   fi
 
   GODOT_BIN="${DOWNLOADED_GODOT_BIN}"
@@ -121,6 +114,7 @@ clean_previous_export() {
     "${ROOT_DIR}/${OUTPUT_PREFIX}.pck" \
     "${ROOT_DIR}/${OUTPUT_PREFIX}.wasm" \
     "${ROOT_DIR}/${OUTPUT_PREFIX}.png" \
+    "${ROOT_DIR}/${OUTPUT_PREFIX}.png.import" \
     "${ROOT_DIR}/${OUTPUT_PREFIX}.icon.png" \
     "${ROOT_DIR}/${OUTPUT_PREFIX}.apple-touch-icon.png" \
     "${ROOT_DIR}/${OUTPUT_PREFIX}.audio.worklet.js" \

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Godot Web Pages Deploy"
+  short_description: "이 프로젝트의 Godot 웹 배포 절차를 수행한다"
+  default_prompt: "Use $godot-web-pages-deploy to export this Godot project for the web and verify the GitHub Pages deployment."

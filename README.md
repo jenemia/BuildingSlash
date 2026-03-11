@@ -15,8 +15,8 @@ macOS에서 `godot` PATH를 잡아 두었고, 웹 export는 아래 명령으로 
 
 스크립트 동작:
 
-- 표준 Godot CLI가 있으면 우선 사용한다.
-- macOS에 `Godot_mono.app`만 있을 경우, 웹 export 안정성을 위해 공식 표준 4.6.1 빌드로 fallback한다.
+- macOS에서는 `/Applications/Godot.app`를 우선 사용한다.
+- 표준 Godot이 없을 때만 공식 표준 4.6.1 빌드를 내려받아 사용한다.
 - export 결과물은 저장소 루트에 생성된다.
 - `.nojekyll`을 함께 만들어 GitHub Pages가 정적 파일을 그대로 서빙하게 한다.
 

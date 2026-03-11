@@ -210,3 +210,7 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 ## Make It Yours
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.
+
+## Project-Local Skills
+
+- `godot-web-pages-deploy` — export this repository's Godot project for Web, refresh root GitHub Pages artifacts, and verify the live Pages site. File: `.codex/skills/godot-web-pages-deploy/SKILL.md`
