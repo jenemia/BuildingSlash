@@ -3,12 +3,14 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-GODOT_TAG="${GODOT_TAG:-4.6.1-stable}"
-GODOT_TEMPLATE_VERSION="${GODOT_TEMPLATE_VERSION:-4.6.1.stable}"
-CACHE_DIR="${ROOT_DIR}/.cache/godot/${GODOT_TAG}"
-DOWNLOAD_DIR="${CACHE_DIR}/downloads"
 OUTPUT_PREFIX="${OUTPUT_PREFIX:-index}"
 GODOT_BIN="${GODOT_BIN:-}"
+GODOT_TAG="${GODOT_TAG:-}"
+GODOT_TEMPLATE_VERSION="${GODOT_TEMPLATE_VERSION:-}"
+CACHE_DIR=""
+DOWNLOAD_DIR=""
+TEMPLATE_DIR=""
+STANDARD_APP_BIN=""
 
 log() {
   printf '[build_web] %s\n' "$1"
@@ -24,15 +26,9 @@ require_command() {
 detect_platform() {
   case "$(uname -s)" in
     Darwin)
-      GODOT_ARCHIVE="Godot_v${GODOT_TAG}_macos.universal.zip"
-      DOWNLOADED_GODOT_BIN="${CACHE_DIR}/Godot.app/Contents/MacOS/Godot"
       STANDARD_APP_BIN="/Applications/Godot.app/Contents/MacOS/Godot"
-      TEMPLATE_DIR="${HOME}/Library/Application Support/Godot/export_templates/${GODOT_TEMPLATE_VERSION}"
       ;;
     Linux)
-      GODOT_ARCHIVE="Godot_v${GODOT_TAG}_linux.x86_64.zip"
-      DOWNLOADED_GODOT_BIN="${CACHE_DIR}/Godot_v${GODOT_TAG}_linux.x86_64"
-      TEMPLATE_DIR="${HOME}/.local/share/godot/export_templates/${GODOT_TEMPLATE_VERSION}"
       ;;
     *)
       printf 'Unsupported platform: %s\n' "$(uname -s)" >&2
@@ -42,51 +38,75 @@ detect_platform() {
 }
 
 resolve_godot_bin() {
-  if [ -n "${GODOT_BIN}" ]; then
+  if [ -n "${GODOT_BIN}" ] && [ -x "${GODOT_BIN}" ]; then
     return
   fi
 
-  if [ "$(uname -s)" = "Darwin" ] && [ -x "${STANDARD_APP_BIN}" ]; then
-    GODOT_BIN="${STANDARD_APP_BIN}"
-    return
-  fi
+  case "$(uname -s)" in
+    Darwin)
+      if [ -x "${STANDARD_APP_BIN}" ]; then
+        GODOT_BIN="${STANDARD_APP_BIN}"
+        return
+      fi
 
-  if command -v godot >/dev/null 2>&1; then
-    GODOT_BIN="$(command -v godot)"
-    return
-  fi
+      printf 'Missing standard Godot app: %s\n' "${STANDARD_APP_BIN}" >&2
+      printf 'Install Godot in /Applications/Godot.app or set GODOT_BIN explicitly.\n' >&2
+      exit 1
+      ;;
+    Linux)
+      if command -v godot >/dev/null 2>&1; then
+        GODOT_BIN="$(command -v godot)"
+        return
+      fi
 
-  if command -v Godot >/dev/null 2>&1; then
-    GODOT_BIN="$(command -v Godot)"
-    return
-  fi
+      if command -v Godot >/dev/null 2>&1; then
+        GODOT_BIN="$(command -v Godot)"
+        return
+      fi
 
-  if command -v godot4 >/dev/null 2>&1; then
-    GODOT_BIN="$(command -v godot4)"
-    return
-  fi
+      if command -v godot4 >/dev/null 2>&1; then
+        GODOT_BIN="$(command -v godot4)"
+        return
+      fi
 
-  GODOT_BIN="${DOWNLOADED_GODOT_BIN}"
+      printf 'Missing Godot CLI. Set GODOT_BIN or install a godot executable in PATH.\n' >&2
+      exit 1
+      ;;
+    *)
+      printf 'Unsupported platform for automatic Godot detection: %s\n' "$(uname -s)" >&2
+      exit 1
+      ;;
+  esac
 }
 
-download_godot() {
-  if [ -x "${GODOT_BIN}" ]; then
+resolve_template_version() {
+  local godot_version
+
+  if [ -n "${GODOT_TEMPLATE_VERSION}" ] && [ -n "${GODOT_TAG}" ]; then
     return
   fi
 
-  mkdir -p "${DOWNLOAD_DIR}"
-  if [ ! -f "${DOWNLOAD_DIR}/${GODOT_ARCHIVE}" ]; then
-    log "Downloading ${GODOT_ARCHIVE}"
-    curl -fsSL -o "${DOWNLOAD_DIR}/${GODOT_ARCHIVE}" \
-      "https://github.com/godotengine/godot/releases/download/${GODOT_TAG}/${GODOT_ARCHIVE}"
+  godot_version="$("${GODOT_BIN}" --version | awk '{print $1}')"
+
+  if [ -z "${GODOT_TEMPLATE_VERSION}" ]; then
+    GODOT_TEMPLATE_VERSION="$(printf '%s' "${godot_version}" | awk -F. '{print $1 "." $2 "." $3 "." $4}')"
   fi
 
-  log "Extracting editor"
-  if [[ "${GODOT_ARCHIVE}" == *.zip ]]; then
-    unzip -qo "${DOWNLOAD_DIR}/${GODOT_ARCHIVE}" -d "${CACHE_DIR}"
-  else
-    tar -xf "${DOWNLOAD_DIR}/${GODOT_ARCHIVE}" -C "${CACHE_DIR}"
+  if [ -z "${GODOT_TAG}" ]; then
+    GODOT_TAG="$(printf '%s' "${GODOT_TEMPLATE_VERSION}" | sed 's/\.stable$/-stable/')"
   fi
+
+  CACHE_DIR="${ROOT_DIR}/.cache/godot/${GODOT_TAG}"
+  DOWNLOAD_DIR="${CACHE_DIR}/downloads"
+
+  case "$(uname -s)" in
+    Darwin)
+      TEMPLATE_DIR="${HOME}/Library/Application Support/Godot/export_templates/${GODOT_TEMPLATE_VERSION}"
+      ;;
+    Linux)
+      TEMPLATE_DIR="${HOME}/.local/share/godot/export_templates/${GODOT_TEMPLATE_VERSION}"
+      ;;
+  esac
 }
 
 install_templates() {
@@ -138,7 +158,7 @@ main() {
   require_command unzip
   detect_platform
   resolve_godot_bin
-  download_godot
+  resolve_template_version
   install_templates
   clean_previous_export
   run_export

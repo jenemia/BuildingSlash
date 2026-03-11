@@ -134,3 +134,4 @@
 - 2026-03-12: `AGENTS.md`에 project-local skill 안내를 추가했다.
 - 2026-03-12: `quick_validate.py`는 시스템 Python에 `yaml` 모듈이 없어 직접 실행은 실패했다.
 - 2026-03-12: `.cache/skill-validator-venv` 임시 venv에 `PyYAML`을 설치해 validator를 재실행했고 `Skill is valid!`를 확인했다.
+- 2026-03-12: 이후 `scripts/build_web.sh`를 설치된 `Godot.app` 전용 흐름으로 단순화하고, Godot 본체 다운로드 단계는 제거했다.

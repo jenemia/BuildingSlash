@@ -33,7 +33,8 @@ Use this reference only when deploying or verifying the web build for this repos
 - Web export uses `renderer/rendering_method="compatibility"` in `project.godot`.
 - Web export uses `threads=false` in `export_presets.cfg` to avoid GitHub Pages header limitations.
 - On macOS, `scripts/build_web.sh` prefers `/Applications/Godot.app` for web export.
-- If the standard Godot app is missing, the script falls back to a cached standard Godot 4.6.1 editor.
+- If the standard Godot app is missing, the script fails and expects the user to install it or set `GODOT_BIN`.
+- The script downloads export templates only when the matching version is not installed yet.
 
 ## Verification
 

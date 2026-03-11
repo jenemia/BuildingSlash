@@ -43,10 +43,11 @@
 
 ## API / Events / Flow
 
-1. 빌드 스크립트가 공식 Godot 4.6.1 에디터와 export templates를 내려받는다.
-2. 스크립트가 `export_presets.cfg`의 `Web` preset으로 웹 export를 실행한다.
-3. 산출물을 저장소 루트에 쓴다.
-4. GitHub Pages가 루트의 `index.html`을 정적 파일로 서빙한다.
+1. 빌드 스크립트가 설치된 표준 Godot 앱을 사용한다.
+2. export templates가 없으면 현재 Godot 버전에 맞는 템플릿만 내려받는다.
+3. 스크립트가 `export_presets.cfg`의 `Web` preset으로 웹 export를 실행한다.
+4. 산출물을 저장소 루트에 쓴다.
+5. GitHub Pages가 루트의 `index.html`을 정적 파일로 서빙한다.
 
 ## UI / UX
 
@@ -58,7 +59,7 @@
 - Web export는 Compatibility renderer가 더 안전하므로 프로젝트 렌더러를 `compatibility`로 맞춘다.
 - GitHub Pages는 사용자 정의 응답 헤더를 제공하지 않으므로 `threads=false`로 export한다.
 - GitHub Pages가 Jekyll 처리로 웹 산출물을 변형하지 않도록 `.nojekyll`을 둔다.
-- 로컬에 Godot가 설치되어 있지 않아도 스크립트가 자체 다운로드로 빌드 가능해야 한다.
+- 로컬에는 표준 Godot 앱이 설치되어 있어야 한다.
 
 ## Definition of Done
 
