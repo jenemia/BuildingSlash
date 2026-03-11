@@ -7,3 +7,6 @@
 .openclaw/
 MEMORY.md
 memory/
+.cache/
+index.icon.png.import
+index.apple-touch-icon.png.import
