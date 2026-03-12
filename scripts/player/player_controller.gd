@@ -72,6 +72,9 @@ func set_mobile_move_axis(axis: float) -> void:
 func trigger_mobile_jump() -> void:
 	mobile_jump_requested = true
 
+func get_facing() -> int:
+	return facing
+
 func _validate_input_actions() -> void:
 	var required_actions := ["move_left", "move_right", "jump"]
 	for action in required_actions:

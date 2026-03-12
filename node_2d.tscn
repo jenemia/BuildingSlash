@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://dt313wg2imqoo"]
+[gd_scene load_steps=5 format=3 uid="uid://dt313wg2imqoo"]
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_dwb4w"]
 [ext_resource type="PackedScene" path="res://scenes/ui/MobileJoystick.tscn" id="2_7ofhs"]
+[ext_resource type="PackedScene" path="res://scenes/world/DummyTarget.tscn" id="3_dmytg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_41j68"]
 size = Vector2(1280, 48)
@@ -19,6 +20,15 @@ shape = SubResource("RectangleShape2D_41j68")
 [node name="GroundVisual" type="Polygon2D" parent="Ground"]
 color = Color(0.164706, 0.180392, 0.219608, 1)
 polygon = PackedVector2Array(-640, -24, 640, -24, 640, 24, -640, 24)
+
+[node name="DummyTargetA" parent="." instance=ExtResource("3_dmytg")]
+position = Vector2(420, 636)
+
+[node name="DummyTargetB" parent="." instance=ExtResource("3_dmytg")]
+position = Vector2(520, 636)
+
+[node name="DummyTargetC" parent="." instance=ExtResource("3_dmytg")]
+position = Vector2(620, 636)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position = Vector2(380, 140)

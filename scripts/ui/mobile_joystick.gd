@@ -3,10 +3,10 @@ extends Control
 signal move_axis_changed(axis: float)
 signal jump_triggered
 
-@export var base_radius: float = 72.0
-@export var knob_radius: float = 30.0
-@export var left_margin: float = 96.0
-@export var bottom_margin: float = 110.0
+@export var base_radius: float = 216.0
+@export var knob_radius: float = 90.0
+@export var left_margin: float = 220.0
+@export var bottom_margin: float = 240.0
 @export var deadzone: float = 0.2
 @export var jump_threshold: float = 0.7
 
@@ -18,6 +18,7 @@ var _jump_latched: bool = false
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	visible = _should_show_on_this_device()
 	_update_layout()
 	get_viewport().size_changed.connect(_update_layout)
 
@@ -78,10 +79,26 @@ func _is_valid_start(screen_pos: Vector2) -> bool:
 
 func _update_layout() -> void:
 	var viewport_size := get_viewport_rect().size
-	_base_center = Vector2(left_margin, viewport_size.y - bottom_margin)
+	var padding := 12.0
+	var min_x := base_radius + padding
+	var max_x := viewport_size.x - base_radius - padding
+	var min_y := base_radius + padding
+	var max_y := viewport_size.y - base_radius - padding
+	
+	var target_x := clampf(left_margin, min_x, max_x)
+	var target_y := clampf(viewport_size.y - bottom_margin, min_y, max_y)
+	_base_center = Vector2(target_x, target_y)
+	
 	if _active_touch_id == -1:
 		_knob_offset = Vector2.ZERO
 	queue_redraw()
+
+func _should_show_on_this_device() -> bool:
+	if OS.has_feature("mobile"):
+		return true
+	if DisplayServer.has_method("is_touchscreen_available"):
+		return DisplayServer.is_touchscreen_available()
+	return false
 
 func _draw() -> void:
 	draw_circle(_base_center, base_radius, Color(0.1, 0.1, 0.1, 0.35))

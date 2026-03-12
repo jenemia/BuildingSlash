@@ -34,11 +34,11 @@
 
 ## 4) 입력맵 확장
 - [ ] 파일: `project.godot`
-- [ ] 현재 등록: `move_left(A)`, `move_right(D)`, `jump(Space)`
+- [ ] 현재 등록: `move_left(A)`, `move_right(D)`, `jump(Space)`, `attack(J)`
 - [ ] 추가 권장:
   - [ ] 방향키(←, →)
   - [ ] 게임패드 축/버튼
-  - [ ] 추후 공격/방어/필살 액션 (`attack`, `guard`, `special`)
+  - [ ] 추후 방어/필살 액션 (`guard`, `special`)
 
 ## 5) 물리 수치 밸런싱(임시값 정리)
 - [ ] 파일: `scripts/player/player_controller.gd`
@@ -64,9 +64,35 @@
   - [ ] 위로 밀기 점프 임계치(jump_threshold) 적정
   - [ ] 멀티터치 시 오동작 없음
 
-## 7) T01 완료 직전 최종 확인
+## 7) T02 공격 리소스 교체 포인트
+- [ ] 파일: `scenes/player/Player.tscn`, `scripts/player/player_attack.gd`
+- [ ] 현재 임시: `AttackDebugVisual(Polygon2D)` + 단일 사각 판정
+- [ ] 교체 대상:
+  - [ ] 공격 애니메이션(무기 스윙/타격 프레임)
+  - [ ] 히트 이펙트(스파크/슬래시)
+  - [ ] 공격 사운드 1종
+- [ ] 확인 포인트:
+  - [ ] 보이는 공격 타이밍과 실제 판정 타이밍 일치
+  - [ ] 좌/우 전환 시 판정 위치 반전 정상
+  - [ ] 연타 시 쿨다운 동작이 체감상 자연스러운지
+
+## 8) 더미 적(임시 리소스) 교체
+- [ ] 파일: `scenes/world/DummyTarget.tscn`, `scripts/world/dummy_target.gd`, `node_2d.tscn`
+- [ ] 현재 임시: 단색 사각형 + 단순 HP 감소 후 제거
+- [ ] 교체 대상:
+  - [ ] 실제 적 프리팹(애니메이션/피격반응)
+  - [ ] 적별 HP/피격/사망 연출
+  - [ ] (필요 시) 허트박스/히트박스 분리
+- [ ] 유지 권장 인터페이스:
+  - [ ] `take_hit(damage, source)`
+- [ ] 확인 포인트:
+  - [ ] 한 번의 공격에서 대상 중복 타격 과다 발생 없음
+  - [ ] 실제 적 콜라이더와 공격 판정의 체감 일치
+
+## 9) T01+T02 완료 직전 최종 확인
 - [ ] 2분 이상 플레이 시 입력 누락/오작동 없음
 - [ ] 공중 재점프 없음
 - [ ] 착지 안정적(경사/코너 떨림 최소)
 - [ ] 모바일 웹에서 조이스틱으로 좌/우/점프 가능
-- [ ] `PROTOTYPE_TRACKER.md`의 T01 acceptance criteria 충족
+- [ ] 공격 입력/판정/쿨다운 정상
+- [ ] `PROTOTYPE_TRACKER.md`의 T01/T02 acceptance criteria 충족
