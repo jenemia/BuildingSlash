@@ -9,6 +9,10 @@ const BlockData = preload("res://scripts/world/block_data.gd")
 @export var gravity_scale: float = 1.0
 @export var max_fall_speed: float = 520.0
 @export var despawn_margin: float = 220.0
+@export var launch_up_force: float = 320.0
+@export var launch_min_force: float = 120.0
+@export var launch_max_force: float = 520.0
+@export var launch_cooldown: float = 0.08
 @export var debug_print: bool = false
 @export_enum("SOFT", "NORMAL", "HARD") var tier_name: String = "NORMAL"
 
@@ -20,6 +24,8 @@ var block_tier: int = BlockData.Tier.NORMAL
 var max_hp: int = 1
 var current_hp: int = 1
 var score_value: int = 0
+var launch_resistance: float = 0.35
+var _launch_cd_left: float = 0.0
 var _color_top: Color = Color(0.93, 0.84, 0.58, 0.95)
 var _color_bottom: Color = Color(0.82, 0.68, 0.34, 0.95)
 
@@ -33,6 +39,9 @@ func _ready() -> void:
 	set_block_tier(BlockData.tier_from_name(tier_name))
 
 func _physics_process(delta: float) -> void:
+	if _launch_cd_left > 0.0:
+		_launch_cd_left = maxf(0.0, _launch_cd_left - delta)
+
 	var gravity := ProjectSettings.get_setting("physics/2d/default_gravity", 980.0) as float
 	velocity.y = minf(velocity.y + gravity * gravity_scale * delta, max_fall_speed)
 	move_and_slide()
@@ -67,6 +76,7 @@ func set_block_tier(tier: int) -> void:
 	max_hp = int(config.get("max_hp", 1))
 	current_hp = max_hp
 	score_value = int(config.get("score_value", 0))
+	launch_resistance = clampf(float(config.get("launch_resistance", 0.35)), 0.0, 0.95)
 	_color_top = config.get("color_top", Color.WHITE)
 	_color_bottom = config.get("color_bottom", Color.GRAY)
 
@@ -92,10 +102,25 @@ func take_damage(amount: int, source: Node = null) -> void:
 func take_hit(damage: int, source: Node) -> void:
 	# T02 호환용 별칭: 기존 공격 스크립트가 take_hit를 호출한다.
 	take_damage(damage, source)
+	if current_hp > 0:
+		_apply_launch(source)
 
 func break_block() -> void:
 	emit_signal("block_broken", self, tier_name, score_value)
 	queue_free()
+
+func _apply_launch(source: Node = null) -> void:
+	if _launch_cd_left > 0.0:
+		return
+
+	var force := launch_up_force * (1.0 - launch_resistance)
+	force = clampf(force, launch_min_force, launch_max_force)
+	velocity.y = minf(velocity.y, -force)
+	_launch_cd_left = launch_cooldown
+
+	if debug_print:
+		var source_name: String = "unknown" if source == null else String(source.name)
+		print("[FallingBlock] launch by=%s tier=%s force=%.1f vy=%.1f" % [source_name, tier_name, force, velocity.y])
 
 func _rebuild_visual_and_collision() -> void:
 	var total_h := current_floors * floor_height
