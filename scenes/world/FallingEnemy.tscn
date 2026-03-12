@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/falling_enemy.gd" id="1_f2n7r"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_9f3na"]
+size = Vector2(28, 36)
+
+[node name="FallingEnemy" type="CharacterBody2D"]
+script = ExtResource("1_f2n7r")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_9f3na")
+
+[node name="BodyVisual" type="Polygon2D" parent="."]
+color = Color(0.35, 0.95, 0.45, 1)
+polygon = PackedVector2Array(-14, -18, 14, -18, 14, 18, -14, 18)

@@ -50,6 +50,13 @@ func _try_start_attack() -> void:
 	hitbox.position.x = attack_offset_x * attack_facing
 	hitbox.monitoring = true
 
+	# 이미 겹쳐 있는 대상도 첫 프레임에 놓치지 않도록 즉시 검사
+	for body in hitbox.get_overlapping_bodies():
+		_try_apply_hit(body)
+	for area in hitbox.get_overlapping_areas():
+		if area != hitbox:
+			_try_apply_hit(area.get_parent())
+
 	if debug_print:
 		print("[Attack] start facing=%d" % attack_facing)
 

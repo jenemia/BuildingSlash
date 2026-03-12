@@ -88,16 +88,17 @@
   - [ ] 좌/우 전환 시 판정 위치 반전 정상
   - [ ] 연타 시 쿨다운 동작이 체감상 자연스러운지
 
-## 8) 더미 적(임시 리소스) 교체
-- [ ] 파일: `scenes/world/DummyTarget.tscn`, `scripts/world/dummy_target.gd`, `node_2d.tscn`
-- [ ] 현재 임시: 단색 사각형 + 단순 HP 감소 후 제거
+## 8) 낙하 적(임시 리소스) 교체
+- [ ] 파일: `scenes/world/FallingEnemy.tscn`, `scripts/world/falling_enemy.gd`, `scripts/world/falling_enemy_spawner.gd`, `node_2d.tscn`
+- [ ] 현재 임시: 단색 사각형 적 + 단순 낙하/HP 감소 후 제거
 - [ ] 교체 대상:
-  - [ ] 실제 적 프리팹(애니메이션/피격반응)
-  - [ ] 적별 HP/피격/사망 연출
+  - [ ] 실제 적 프리팹(애니메이션/피격반응/사망)
+  - [ ] 적별 패턴(낙하 속도, 체력, 특성)
   - [ ] (필요 시) 허트박스/히트박스 분리
 - [ ] 유지 권장 인터페이스:
   - [ ] `take_hit(damage, source)`
 - [ ] 확인 포인트:
+  - [ ] 적이 화면 상단에서 자연스럽게 스폰되는지
   - [ ] 한 번의 공격에서 대상 중복 타격 과다 발생 없음
   - [ ] 실제 적 콜라이더와 공격 판정의 체감 일치
 
