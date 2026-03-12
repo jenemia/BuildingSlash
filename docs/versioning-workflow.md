@@ -10,17 +10,18 @@
 ## 권장 사용법
 ### 1) 일반 개발 푸시
 - 필요 시 수동 커밋/푸시
+- 커밋 메시지는 항상 한글로 작성
 
 ### 2) 배포성 푸시(버전+웹빌드+푸시)
 ```bash
-./scripts/release/release_web_push.sh patch "t06 spawn curve"
+./scripts/release/release_web_push.sh patch "한글 배포 메시지"
 ```
 
 동작 순서:
-1. `VERSION.txt` patch 증가
+1. `VERSION.txt` patch 증가 (예: `0.0.1 -> 0.0.2`)
 2. `./scripts/build_web.sh` 실행
 3. 웹 산출물 + VERSION 스테이징
-4. `chore(release): vX.Y.Z - <message>` 커밋
+4. 한글 커밋 메시지로 커밋
 5. `origin/main` 푸시
 
 ## 참고
