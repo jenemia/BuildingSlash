@@ -216,4 +216,5 @@
 - 2026-03-12 11:07 | 대상: T06(스포너 곡선) | 결과: PASS | 시간 경과 기반 스폰 간격 감소 + 동시 개체수 증가 + tier 가중치(soft→hard) 이동 적용
 - 2026-03-12 15:45 | 대상: T07~T11 | 결과: PASS | 필살기/전투HUD/결과패널/메타업그레이드/게임루프 연결 완료 (GameFlow + MetaProgression + SaveData)
 - 2026-03-12 15:49 | 대상: T12(플레이테스트+웹빌드) | 결과: PASS | 3회 플레이 평균 3~5분 충족, `./scripts/build_web.sh` 성공
+- 2026-03-12 16:05 | 대상: T07 확장(낙하 적 launch 정리) | 결과: PASS WITH WARNINGS | `FallingEnemy`에 launch export/cooldown 추가, T07 문서를 `FallingBlock`+`FallingEnemy` 기준으로 갱신, headless 로드 성공. 수동 launch 체감 테스트는 미실행
 - YYYY-MM-DD HH:mm | 대상: Mx | 결과: PASS/PASS WITH WARNINGS/FAIL | 메모

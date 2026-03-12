@@ -60,4 +60,5 @@ project/assembly_name="새 게임 프로젝트"
 [rendering]
 
 rendering_device/driver.windows="d3d12"
-renderer/rendering_method="compatibility"
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.web="gl_compatibility"

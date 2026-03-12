@@ -1,74 +1,60 @@
-[gd_scene load_steps=12 format=3 uid="uid://dt313wg2imqoo"]
+[gd_scene format=3 uid="uid://dt313wg2imqoo"]
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_dwb4w"]
-[ext_resource type="Script" path="res://scripts/main/game_root.gd" id="1_root"]
+[ext_resource type="Script" uid="uid://dngi5afs5fryf" path="res://scripts/main/game_root.gd" id="1_root"]
 [ext_resource type="PackedScene" path="res://scenes/ui/MobileJoystick.tscn" id="2_7ofhs"]
 [ext_resource type="Script" path="res://scripts/world/falling_block_spawner.gd" id="3_spwnr"]
 [ext_resource type="PackedScene" path="res://scenes/world/FallingBlock.tscn" id="4_bldng"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CombatHUD.tscn" id="5_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ResultPanel.tscn" id="6_result"]
 [ext_resource type="PackedScene" path="res://scenes/meta/MetaMenu.tscn" id="7_meta"]
-[ext_resource type="Script" path="res://scripts/meta/meta_progression.gd" id="8_progress"]
-[ext_resource type="Script" path="res://scripts/main/game_flow.gd" id="9_flow"]
+[ext_resource type="Script" uid="uid://bmgpaxoruptv4" path="res://scripts/meta/meta_progression.gd" id="8_progress"]
+[ext_resource type="Script" uid="uid://bi8f6r3gqh4yk" path="res://scripts/main/game_flow.gd" id="9_flow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_41j68"]
 size = Vector2(1280, 48)
 
 [node name="Node2D" type="Node2D" unique_id=1771244610]
 script = ExtResource("1_root")
-ground_bottom_margin = 0.0
 
-[node name="Player" parent="." instance=ExtResource("1_dwb4w")]
+[node name="Player" parent="." unique_id=1383216747 instance=ExtResource("1_dwb4w")]
 
-[node name="Ground" type="StaticBody2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1871705537]
+position = Vector2(380, 140)
+
+[node name="Ground" type="StaticBody2D" parent="." unique_id=1504855535]
 position = Vector2(640, 680)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground" unique_id=1068504096]
 shape = SubResource("RectangleShape2D_41j68")
 
-[node name="GroundVisual" type="Polygon2D" parent="Ground"]
+[node name="GroundVisual" type="Polygon2D" parent="Ground" unique_id=425857737]
 color = Color(0.164706, 0.180392, 0.219608, 1)
 polygon = PackedVector2Array(-640, -24, 640, -24, 640, 24, -640, 24)
 
-[node name="EnemySpawner" type="Node2D" parent="."]
+[node name="EnemySpawner" type="Node2D" parent="." unique_id=834197147]
 script = ExtResource("3_spwnr")
 block_scene = ExtResource("4_bldng")
-spawn_interval_start = 1.8
-spawn_interval_min = 0.75
-difficulty_ramp_seconds = 180.0
-spawn_x_min = 700.0
-spawn_x_max = 760.0
-spawn_y = -40.0
-max_alive_start = 1
-max_alive_end = 3
-soft_weight_start = 0.55
-soft_weight_end = 0.20
-normal_weight_start = 0.35
-normal_weight_end = 0.45
-hard_weight_start = 0.10
-hard_weight_end = 0.35
 
-[node name="Camera2D" type="Camera2D" parent="Player"]
-position = Vector2(380, 140)
-enabled = true
+[node name="CombatHUD" parent="." unique_id=1493140299 instance=ExtResource("5_hud")]
 
-[node name="CombatHUD" parent="." instance=ExtResource("5_hud")]
+[node name="ResultPanel" parent="." unique_id=741790608 instance=ExtResource("6_result")]
 
-[node name="ResultPanel" parent="." instance=ExtResource("6_result")]
+[node name="MetaMenu" parent="." unique_id=1105176678 instance=ExtResource("7_meta")]
 
-[node name="MetaMenu" parent="." instance=ExtResource("7_meta")]
-
-[node name="MetaProgression" type="Node" parent="."]
+[node name="MetaProgression" type="Node" parent="." unique_id=1778809902]
 script = ExtResource("8_progress")
 
-[node name="GameFlow" type="Node" parent="."]
+[node name="GameFlow" type="Node" parent="." unique_id=1978976056]
 script = ExtResource("9_flow")
 
-[node name="MobileControls" type="CanvasLayer" parent="."]
+[node name="MobileControls" type="CanvasLayer" parent="." unique_id=1617103478]
 layer = 10
 
-[node name="MobileJoystick" parent="MobileControls" instance=ExtResource("2_7ofhs")]
+[node name="MobileJoystick" parent="MobileControls" unique_id=874643315 instance=ExtResource("2_7ofhs")]
+layout_mode = 3
+anchors_preset = 0
 
-[connection signal="move_axis_changed" from="MobileControls/MobileJoystick" to="Player" method="set_mobile_move_axis"]
-[connection signal="jump_triggered" from="MobileControls/MobileJoystick" to="Player" method="trigger_mobile_jump"]
 [connection signal="attack_triggered" from="MobileControls/MobileJoystick" to="Player" method="trigger_mobile_attack"]
+[connection signal="jump_triggered" from="MobileControls/MobileJoystick" to="Player" method="trigger_mobile_jump"]
+[connection signal="move_axis_changed" from="MobileControls/MobileJoystick" to="Player" method="set_mobile_move_axis"]

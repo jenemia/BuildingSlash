@@ -56,7 +56,7 @@
 
 ## Error and Edge Cases
 
-- Web export는 Compatibility renderer가 더 안전하므로 프로젝트 렌더러를 `compatibility`로 맞춘다.
+- 데스크톱 기본 렌더러는 `forward_plus`를 유지하고, Web override만 `gl_compatibility`로 둔다.
 - GitHub Pages는 사용자 정의 응답 헤더를 제공하지 않으므로 `threads=false`로 export한다.
 - GitHub Pages가 Jekyll 처리로 웹 산출물을 변형하지 않도록 `.nojekyll`을 둔다.
 - 로컬에는 표준 Godot 앱이 설치되어 있어야 한다.
@@ -86,8 +86,8 @@
 
 - 권장안: `main` 루트 배포
   - 이유: 현재 Pages가 이미 루트 콘텐츠를 서빙하고 있고, 추가 권한 없이 즉시 적용 가능하다.
-- 렌더러: `compatibility`
-  - 이유: Web 타깃 호환성이 가장 높다.
+- 렌더러: 데스크톱 `forward_plus`, Web `gl_compatibility`
+  - 이유: 데스크톱 실행에서는 Metal/Vulkan/D3D 계열 기본 경로를 유지하고, Web 타깃만 호환성이 높은 GL Compatibility를 강제한다.
 - 스레드: `false`
   - 이유: GitHub Pages에서 필요한 COOP/COEP 헤더를 제어할 수 없기 때문이다.
 
@@ -97,7 +97,7 @@
 
 - Purpose: 웹 export 설정과 빌드 도구를 추가한다.
 - Changed files: `project.godot`, `export_presets.cfg`, `scripts/build_web.sh`
-- Implementation details: 렌더러 조정, 웹 preset 작성, 자체 다운로드형 빌드 스크립트 추가
+- Implementation details: 데스크톱/Web 렌더러 분리 설정, 웹 preset 작성, 자체 다운로드형 빌드 스크립트 추가
 - Acceptance criteria: 스크립트가 웹 export를 실행할 수 있다.
 - Verification method: 스크립트 실행 로그 확인
 

@@ -124,7 +124,10 @@ func _apply_launch(source: Node = null) -> void:
 
 func _rebuild_visual_and_collision() -> void:
 	var total_h := current_floors * floor_height
-
+	
+	if collision_shape == null:
+		return
+		
 	# 충돌 히트박스는 월드 단위 고정(해상도 비의존)
 	var shape := collision_shape.shape as RectangleShape2D
 	shape.size = Vector2(floor_width, total_h)
