@@ -3,32 +3,40 @@ extends Node2D
 const BlockData = preload("res://scripts/world/block_data.gd")
 
 @export var block_scene: PackedScene
-@export var spawn_interval: float = 1.8
+@export var spawn_interval_start: float = 1.8
+@export var spawn_interval_min: float = 0.75
+@export var difficulty_ramp_seconds: float = 180.0
 @export var spawn_x_min: float = 700.0
 @export var spawn_x_max: float = 760.0
 @export var spawn_y: float = -40.0
-@export var max_alive: int = 1
-@export var soft_weight: float = 0.55
-@export var normal_weight: float = 0.35
-@export var hard_weight: float = 0.10
+@export var max_alive_start: int = 1
+@export var max_alive_end: int = 3
+@export var soft_weight_start: float = 0.55
+@export var soft_weight_end: float = 0.20
+@export var normal_weight_start: float = 0.35
+@export var normal_weight_end: float = 0.45
+@export var hard_weight_start: float = 0.10
+@export var hard_weight_end: float = 0.35
 
 var _time_left: float = 0.0
+var _elapsed: float = 0.0
 
 func _ready() -> void:
 	randomize()
-	_time_left = spawn_interval
+	_time_left = spawn_interval_start
 
 func _process(delta: float) -> void:
+	_elapsed += delta
 	_time_left -= delta
 	if _time_left > 0.0:
 		return
-	_time_left = spawn_interval
+	_time_left = _current_spawn_interval()
 	_spawn_one()
 
 func _spawn_one() -> void:
 	if block_scene == null:
 		return
-	if get_tree().get_nodes_in_group("falling_block").size() >= max_alive:
+	if get_tree().get_nodes_in_group("falling_block").size() >= _current_max_alive():
 		return
 
 	var block := block_scene.instantiate() as Node2D
@@ -38,9 +46,9 @@ func _spawn_one() -> void:
 	get_parent().add_child(block)
 
 func _pick_tier() -> int:
-	var s := maxf(0.0, soft_weight)
-	var n := maxf(0.0, normal_weight)
-	var h := maxf(0.0, hard_weight)
+	var s := maxf(0.0, _lerp_weight(soft_weight_start, soft_weight_end))
+	var n := maxf(0.0, _lerp_weight(normal_weight_start, normal_weight_end))
+	var h := maxf(0.0, _lerp_weight(hard_weight_start, hard_weight_end))
 	var total := s + n + h
 	if total <= 0.0:
 		return BlockData.Tier.NORMAL
@@ -51,3 +59,17 @@ func _pick_tier() -> int:
 	if r < s + n:
 		return BlockData.Tier.NORMAL
 	return BlockData.Tier.HARD
+
+func _difficulty_t() -> float:
+	if difficulty_ramp_seconds <= 0.0:
+		return 1.0
+	return clampf(_elapsed / difficulty_ramp_seconds, 0.0, 1.0)
+
+func _current_spawn_interval() -> float:
+	return lerpf(spawn_interval_start, spawn_interval_min, _difficulty_t())
+
+func _current_max_alive() -> int:
+	return int(round(lerpf(float(max_alive_start), float(max_alive_end), _difficulty_t())))
+
+func _lerp_weight(start_v: float, end_v: float) -> float:
+	return lerpf(start_v, end_v, _difficulty_t())
