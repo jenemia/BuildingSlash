@@ -13,6 +13,9 @@ signal attack_triggered
 @export var attack_button_radius: float = 68.0
 @export var attack_right_margin: float = 128.0
 @export var attack_bottom_margin: float = 156.0
+@export var ui_scale_base_resolution: Vector2 = Vector2(1280.0, 720.0)
+@export var ui_scale_min: float = 0.70
+@export var ui_scale_max: float = 1.35
 
 var _active_touch_id: int = -1
 var _attack_touch_id: int = -1
@@ -20,6 +23,7 @@ var _base_center: Vector2 = Vector2.ZERO
 var _attack_center: Vector2 = Vector2.ZERO
 var _knob_offset: Vector2 = Vector2.ZERO
 var _jump_latched: bool = false
+var _ui_scale: float = 1.0
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -57,11 +61,12 @@ func _handle_drag(event: InputEventScreenDrag) -> void:
 
 func _update_from_position(screen_pos: Vector2) -> void:
 	var delta := screen_pos - _base_center
-	if delta.length() > base_radius:
-		delta = delta.normalized() * base_radius
+	var current_base_radius := _scaled(base_radius)
+	if delta.length() > current_base_radius:
+		delta = delta.normalized() * current_base_radius
 	_knob_offset = delta
 	
-	var normalized := _knob_offset / base_radius
+	var normalized := _knob_offset / current_base_radius
 	var axis := normalized.x
 	if absf(axis) < deadzone:
 		axis = 0.0
@@ -88,29 +93,38 @@ func _is_valid_start(screen_pos: Vector2) -> bool:
 	var viewport_size := get_viewport_rect().size
 	if screen_pos.x > viewport_size.x * 0.55:
 		return false
-	return screen_pos.distance_to(_base_center) <= base_radius * 1.8
+	return screen_pos.distance_to(_base_center) <= _scaled(base_radius) * 1.8
 
 func _is_attack_button(screen_pos: Vector2) -> bool:
-	return screen_pos.distance_to(_attack_center) <= attack_button_radius * 1.2
+	return screen_pos.distance_to(_attack_center) <= _scaled(attack_button_radius) * 1.2
 
 func _update_layout() -> void:
 	var viewport_size := get_viewport_rect().size
-	var padding := 12.0
-	var min_x := base_radius + padding
-	var max_x := viewport_size.x - base_radius - padding
-	var min_y := base_radius + padding
-	var max_y := viewport_size.y - base_radius - padding
+	_ui_scale = _compute_ui_scale(viewport_size)
+
+	var current_base_radius := _scaled(base_radius)
+	var current_attack_radius := _scaled(attack_button_radius)
+	var current_left_margin := _scaled(left_margin)
+	var current_bottom_margin := _scaled(bottom_margin)
+	var current_attack_right_margin := _scaled(attack_right_margin)
+	var current_attack_bottom_margin := _scaled(attack_bottom_margin)
+	var padding := _scaled(12.0)
+
+	var min_x := current_base_radius + padding
+	var max_x := viewport_size.x - current_base_radius - padding
+	var min_y := current_base_radius + padding
+	var max_y := viewport_size.y - current_base_radius - padding
 	
-	var target_x := clampf(left_margin, min_x, max_x)
-	var target_y := clampf(viewport_size.y - bottom_margin, min_y, max_y)
+	var target_x := clampf(current_left_margin, min_x, max_x)
+	var target_y := clampf(viewport_size.y - current_bottom_margin, min_y, max_y)
 	_base_center = Vector2(target_x, target_y)
 
-	var attack_min_x := attack_button_radius + padding
-	var attack_max_x := viewport_size.x - attack_button_radius - padding
-	var attack_min_y := attack_button_radius + padding
-	var attack_max_y := viewport_size.y - attack_button_radius - padding
-	var attack_x := clampf(viewport_size.x - attack_right_margin, attack_min_x, attack_max_x)
-	var attack_y := clampf(viewport_size.y - attack_bottom_margin, attack_min_y, attack_max_y)
+	var attack_min_x := current_attack_radius + padding
+	var attack_max_x := viewport_size.x - current_attack_radius - padding
+	var attack_min_y := current_attack_radius + padding
+	var attack_max_y := viewport_size.y - current_attack_radius - padding
+	var attack_x := clampf(viewport_size.x - current_attack_right_margin, attack_min_x, attack_max_x)
+	var attack_y := clampf(viewport_size.y - current_attack_bottom_margin, attack_min_y, attack_max_y)
 	_attack_center = Vector2(attack_x, attack_y)
 	
 	if _active_touch_id == -1:
@@ -125,12 +139,26 @@ func _should_show_on_this_device() -> bool:
 	return false
 
 func _draw() -> void:
-	draw_circle(_base_center, base_radius, Color(0.1, 0.1, 0.1, 0.35))
-	draw_circle(_base_center, base_radius - 6.0, Color(0.5, 0.5, 0.5, 0.18))
-	draw_circle(_base_center + _knob_offset, knob_radius, Color(0.7, 0.9, 1.0, 0.7))
+	var current_base_radius := _scaled(base_radius)
+	var current_knob_radius := _scaled(knob_radius)
+	var current_attack_radius := _scaled(attack_button_radius)
+
+	draw_circle(_base_center, current_base_radius, Color(0.1, 0.1, 0.1, 0.35))
+	draw_circle(_base_center, current_base_radius - _scaled(6.0), Color(0.5, 0.5, 0.5, 0.18))
+	draw_circle(_base_center + _knob_offset, current_knob_radius, Color(0.7, 0.9, 1.0, 0.7))
 
 	var attack_color := Color(1.0, 0.35, 0.35, 0.55)
 	if _attack_touch_id != -1:
 		attack_color = Color(1.0, 0.2, 0.2, 0.9)
-	draw_circle(_attack_center, attack_button_radius, attack_color)
-	draw_circle(_attack_center, attack_button_radius - 8.0, Color(1.0, 0.8, 0.8, 0.35))
+	draw_circle(_attack_center, current_attack_radius, attack_color)
+	draw_circle(_attack_center, current_attack_radius - _scaled(8.0), Color(1.0, 0.8, 0.8, 0.35))
+
+func _compute_ui_scale(viewport_size: Vector2) -> float:
+	if ui_scale_base_resolution.x <= 0.0 or ui_scale_base_resolution.y <= 0.0:
+		return 1.0
+	var sx := viewport_size.x / ui_scale_base_resolution.x
+	var sy := viewport_size.y / ui_scale_base_resolution.y
+	return clampf(minf(sx, sy), ui_scale_min, ui_scale_max)
+
+func _scaled(v: float) -> float:
+	return v * _ui_scale
