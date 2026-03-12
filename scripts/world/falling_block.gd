@@ -7,7 +7,7 @@ const BlockData = preload("res://scripts/world/block_data.gd")
 @export var floor_width: float = 180.0
 @export var gravity_scale: float = 1.0
 @export var max_fall_speed: float = 520.0
-@export var despawn_y: float = 980.0
+@export var despawn_margin: float = 220.0
 @export var debug_print: bool = false
 @export_enum("SOFT", "NORMAL", "HARD") var tier_name: String = "NORMAL"
 
@@ -36,9 +36,10 @@ func _physics_process(delta: float) -> void:
 	velocity.y = minf(velocity.y + gravity * gravity_scale * delta, max_fall_speed)
 	move_and_slide()
 
-	if global_position.y > despawn_y:
+	var viewport_bottom := get_viewport_rect().size.y
+	if global_position.y > viewport_bottom + despawn_margin:
 		if debug_print:
-			print("[FallingBlock] despawned out-of-bounds y=%.1f" % global_position.y)
+			print("[FallingBlock] despawned out-of-bounds y=%.1f (viewport=%.1f)" % [global_position.y, viewport_bottom])
 		queue_free()
 		return
 

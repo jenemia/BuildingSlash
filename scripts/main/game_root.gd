@@ -50,10 +50,4 @@ func _update_version_label() -> void:
 	version_label.text = "v%s" % _read_version()
 
 func _read_version() -> String:
-	var path := "res://VERSION.txt"
-	if not FileAccess.file_exists(path):
-		return "0.0.0"
-	var f := FileAccess.open(path, FileAccess.READ)
-	if f == null:
-		return "0.0.0"
-	return f.get_as_text().strip_edges()
+	return str(ProjectSettings.get_setting("application/config/version", "0.0.0"))

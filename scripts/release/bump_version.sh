@@ -6,13 +6,13 @@ VERSION_FILE="${ROOT_DIR}/VERSION.txt"
 PART="${1:-patch}"
 
 if [[ ! -f "${VERSION_FILE}" ]]; then
-  echo "0.1.0" > "${VERSION_FILE}"
+  echo "0.0.0" > "${VERSION_FILE}"
 fi
 
 CURRENT="$(tr -d '[:space:]' < "${VERSION_FILE}")"
 IFS='.' read -r MAJOR MINOR PATCH <<< "${CURRENT}"
 MAJOR=${MAJOR:-0}
-MINOR=${MINOR:-1}
+MINOR=${MINOR:-0}
 PATCH=${PATCH:-0}
 
 case "${PART}" in
@@ -29,4 +29,29 @@ esac
 
 NEXT="${MAJOR}.${MINOR}.${PATCH}"
 echo "${NEXT}" > "${VERSION_FILE}"
+
+PROJECT_FILE="${ROOT_DIR}/project.godot"
+if grep -q '^config/version=' "${PROJECT_FILE}"; then
+  sed -i.bak "s/^config\/version=.*/config\/version=\"${NEXT}\"/" "${PROJECT_FILE}"
+else
+  awk -v v="${NEXT}" '
+    BEGIN { in_app=0; inserted=0 }
+    /^\[application\]$/ { in_app=1; print; next }
+    /^\[/ {
+      if (in_app && !inserted) {
+        print "config/version=\"" v "\""
+        inserted=1
+      }
+      in_app=0
+      print
+      next
+    }
+    { print }
+    END {
+      if (in_app && !inserted) print "config/version=\"" v "\""
+    }
+  ' "${PROJECT_FILE}" > "${PROJECT_FILE}.tmp" && mv "${PROJECT_FILE}.tmp" "${PROJECT_FILE}"
+fi
+rm -f "${PROJECT_FILE}.bak"
+
 echo "${NEXT}"
