@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/combat_hud.gd" id="1_hud"]
+
+[node name="CombatHUD" type="CanvasLayer"]
+layer = 30
+script = ExtResource("1_hud")
+
+[node name="Panel" type="Panel" parent="."]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 250.0
+offset_bottom = 168.0
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 224.0
+offset_bottom = 148.0
+
+[node name="HPLabel" type="Label" parent="Panel/VBox"]
+text = "HP 0/0"
+
+[node name="GuardLabel" type="Label" parent="Panel/VBox"]
+text = "GUARD 0/0"
+
+[node name="SpecialLabel" type="Label" parent="Panel/VBox"]
+text = "SPECIAL 0%"
+
+[node name="TimerLabel" type="Label" parent="Panel/VBox"]
+text = "TIME 0.0s"
+
+[node name="ScoreLabel" type="Label" parent="Panel/VBox"]
+text = "SCORE 0"

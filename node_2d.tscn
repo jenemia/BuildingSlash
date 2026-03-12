@@ -1,10 +1,15 @@
-[gd_scene load_steps=7 format=3 uid="uid://dt313wg2imqoo"]
+[gd_scene load_steps=12 format=3 uid="uid://dt313wg2imqoo"]
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_dwb4w"]
 [ext_resource type="Script" path="res://scripts/main/game_root.gd" id="1_root"]
 [ext_resource type="PackedScene" path="res://scenes/ui/MobileJoystick.tscn" id="2_7ofhs"]
 [ext_resource type="Script" path="res://scripts/world/falling_block_spawner.gd" id="3_spwnr"]
 [ext_resource type="PackedScene" path="res://scenes/world/FallingBlock.tscn" id="4_bldng"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CombatHUD.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ResultPanel.tscn" id="6_result"]
+[ext_resource type="PackedScene" path="res://scenes/meta/MetaMenu.tscn" id="7_meta"]
+[ext_resource type="Script" path="res://scripts/meta/meta_progression.gd" id="8_progress"]
+[ext_resource type="Script" path="res://scripts/main/game_flow.gd" id="9_flow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_41j68"]
 size = Vector2(1280, 48)
@@ -47,23 +52,17 @@ hard_weight_end = 0.35
 position = Vector2(380, 140)
 enabled = true
 
-[node name="HUD" type="CanvasLayer" parent="."]
-layer = 20
+[node name="CombatHUD" parent="." instance=ExtResource("5_hud")]
 
-[node name="VersionLabel" type="Label" parent="HUD"]
-offset_left = 1110.0
-offset_top = 16.0
-offset_right = 1260.0
-offset_bottom = 52.0
-horizontal_alignment = 2
-text = "v0.0.0"
+[node name="ResultPanel" parent="." instance=ExtResource("6_result")]
 
-[node name="SpecialGaugeLabel" type="Label" parent="HUD"]
-offset_left = 24.0
-offset_top = 16.0
-offset_right = 340.0
-offset_bottom = 52.0
-text = "SPECIAL 0%"
+[node name="MetaMenu" parent="." instance=ExtResource("7_meta")]
+
+[node name="MetaProgression" type="Node" parent="."]
+script = ExtResource("8_progress")
+
+[node name="GameFlow" type="Node" parent="."]
+script = ExtResource("9_flow")
 
 [node name="MobileControls" type="CanvasLayer" parent="."]
 layer = 10
