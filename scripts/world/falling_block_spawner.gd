@@ -9,6 +9,9 @@ const BlockData = preload("res://scripts/world/block_data.gd")
 @export var spawn_x_min: float = 700.0
 @export var spawn_x_max: float = 760.0
 @export var spawn_y: float = -40.0
+@export var use_viewport_spawn_bounds: bool = true
+@export var viewport_spawn_margin_x: float = 120.0
+@export var viewport_spawn_top_offset: float = 40.0
 @export var max_alive_start: int = 1
 @export var max_alive_end: int = 3
 @export var soft_weight_start: float = 0.55
@@ -40,7 +43,8 @@ func _spawn_one() -> void:
 		return
 
 	var block := block_scene.instantiate() as Node2D
-	block.position = Vector2(randf_range(spawn_x_min, spawn_x_max), spawn_y)
+	var spawn_pos := _pick_spawn_position()
+	block.position = spawn_pos
 	if block.has_method("set_block_tier"):
 		block.call("set_block_tier", _pick_tier())
 	get_parent().add_child(block)
@@ -73,3 +77,13 @@ func _current_max_alive() -> int:
 
 func _lerp_weight(start_v: float, end_v: float) -> float:
 	return lerpf(start_v, end_v, _difficulty_t())
+
+func _pick_spawn_position() -> Vector2:
+	if not use_viewport_spawn_bounds:
+		return Vector2(randf_range(spawn_x_min, spawn_x_max), spawn_y)
+
+	var viewport := get_viewport_rect().size
+	var min_x := viewport_spawn_margin_x
+	var max_x := maxf(min_x + 1.0, viewport.x - viewport_spawn_margin_x)
+	var y := -viewport_spawn_top_offset
+	return Vector2(randf_range(min_x, max_x), y)

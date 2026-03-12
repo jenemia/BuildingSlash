@@ -3,20 +3,25 @@ extends Node2D
 @export var ground_bottom_margin: float = 0.0
 @export var min_ground_width: float = 1280.0
 @export var player_spawn_gap_from_ground: float = 160.0
+@export var hud_margin_right: float = 20.0
+@export var hud_margin_top: float = 16.0
+@export var camera_x_ratio: float = 0.30
+@export var camera_y_ratio: float = 0.19
 
 @onready var ground: StaticBody2D = $Ground
 @onready var ground_collision: CollisionShape2D = $Ground/CollisionShape2D
 @onready var ground_visual: Polygon2D = $Ground/GroundVisual
 @onready var player: Node2D = $Player
+@onready var camera: Camera2D = $Player/Camera2D
 @onready var version_label: Label = $HUD/VersionLabel
 
 func _ready() -> void:
-	_layout_ground_to_bottom()
+	_layout_for_viewport()
 	if get_viewport() != null:
-		get_viewport().size_changed.connect(_layout_ground_to_bottom)
+		get_viewport().size_changed.connect(_layout_for_viewport)
 	_update_version_label()
 
-func _layout_ground_to_bottom() -> void:
+func _layout_for_viewport() -> void:
 	if ground_collision == null:
 		return
 
@@ -43,6 +48,13 @@ func _layout_ground_to_bottom() -> void:
 	if player != null:
 		var top_y := ground.position.y - half_h
 		player.position.y = minf(player.position.y, top_y - player_spawn_gap_from_ground)
+
+	if camera != null:
+		camera.position = Vector2(viewport_size.x * camera_x_ratio, viewport_size.y * camera_y_ratio)
+
+	if version_label != null:
+		var s := version_label.size
+		version_label.position = Vector2(viewport_size.x - hud_margin_right - s.x, hud_margin_top)
 
 func _update_version_label() -> void:
 	if version_label == null:
