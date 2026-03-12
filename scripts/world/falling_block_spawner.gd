@@ -1,6 +1,6 @@
 extends Node2D
 
-@export var enemy_scene: PackedScene
+@export var block_scene: PackedScene
 @export var spawn_interval: float = 1.8
 @export var spawn_x_min: float = 700.0
 @export var spawn_x_max: float = 760.0
@@ -21,11 +21,11 @@ func _process(delta: float) -> void:
 	_spawn_one()
 
 func _spawn_one() -> void:
-	if enemy_scene == null:
+	if block_scene == null:
 		return
-	if get_tree().get_nodes_in_group("building_enemy").size() >= max_alive:
+	if get_tree().get_nodes_in_group("falling_block").size() >= max_alive:
 		return
 
-	var enemy := enemy_scene.instantiate() as Node2D
-	enemy.position = Vector2(randf_range(spawn_x_min, spawn_x_max), spawn_y)
-	get_parent().add_child(enemy)
+	var block := block_scene.instantiate() as Node2D
+	block.position = Vector2(randf_range(spawn_x_min, spawn_x_max), spawn_y)
+	get_parent().add_child(block)
