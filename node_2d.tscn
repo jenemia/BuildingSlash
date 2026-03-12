@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://dt313wg2imqoo"]
+[gd_scene load_steps=7 format=3 uid="uid://dt313wg2imqoo"]
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_dwb4w"]
+[ext_resource type="Script" path="res://scripts/main/game_root.gd" id="1_root"]
 [ext_resource type="PackedScene" path="res://scenes/ui/MobileJoystick.tscn" id="2_7ofhs"]
 [ext_resource type="Script" path="res://scripts/world/falling_block_spawner.gd" id="3_spwnr"]
 [ext_resource type="PackedScene" path="res://scenes/world/FallingBlock.tscn" id="4_bldng"]
@@ -9,6 +10,7 @@
 size = Vector2(1280, 48)
 
 [node name="Node2D" type="Node2D" unique_id=1771244610]
+script = ExtResource("1_root")
 
 [node name="Player" parent="." instance=ExtResource("1_dwb4w")]
 
@@ -34,6 +36,17 @@ max_alive = 1
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position = Vector2(380, 140)
 enabled = true
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="VersionLabel" type="Label" parent="HUD"]
+offset_left = 1110.0
+offset_top = 16.0
+offset_right = 1260.0
+offset_bottom = 52.0
+horizontal_alignment = 2
+text = "v0.0.0"
 
 [node name="MobileControls" type="CanvasLayer" parent="."]
 layer = 10

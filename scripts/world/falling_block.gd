@@ -73,11 +73,11 @@ func set_block_tier(tier: int) -> void:
 		print("[FallingBlock] tier=%s hp=%d score=%d" % [tier_name, current_hp, score_value])
 
 func take_damage(amount: int, source: Node = null) -> void:
-	var dmg := max(1, amount)
-	current_hp = max(0, current_hp - dmg)
+	var dmg: int = maxi(1, amount)
+	current_hp = maxi(0, current_hp - dmg)
 
 	if debug_print:
-		var source_name := "unknown" if source == null else source.name
+		var source_name: String = "unknown" if source == null else String(source.name)
 		print("[FallingBlock] damage by=%s tier=%s hp=%d/%d" % [source_name, tier_name, current_hp, max_hp])
 
 	if current_hp <= 0:

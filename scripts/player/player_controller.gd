@@ -172,7 +172,7 @@ func request_contact_bounce(source: Node = null, normal: Vector2 = Vector2.UP, f
 	_bounce_cd_left = contact_bounce_cooldown
 
 	if debug_print:
-		var source_name := "unknown" if source == null else source.name
+		var source_name: String = "unknown" if source == null else String(source.name)
 		print("[Bounce] source=%s attack_timing=%s vy=%.1f" % [source_name, str(attack_timing), velocity.y])
 
 	return true
