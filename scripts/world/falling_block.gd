@@ -116,6 +116,8 @@ func _apply_launch(source: Node = null) -> void:
 	var force := launch_up_force * (1.0 - launch_resistance)
 	force = clampf(force, launch_min_force, launch_max_force)
 	velocity.y = minf(velocity.y, -force)
+	# 플레이어와 딱 붙은 상태에서 타격 시 분리되지 않으면 launch 체감이 죽으므로 약간 위로 분리.
+	global_position.y -= 6.0
 	_launch_cd_left = launch_cooldown
 
 	if debug_print:

@@ -1,44 +1,86 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://ccgmpo634ehho"]
 
-[ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_i2wq8"]
-[ext_resource type="Script" path="res://scripts/player/player_attack.gd" id="2_0r4wo"]
+[ext_resource type="Script" uid="uid://c5o5fp5npcilb" path="res://scripts/player/player_controller.gd" id="1_i2wq8"]
+[ext_resource type="Script" uid="uid://ci5uymbmkd2t2" path="res://scripts/player/player_attack.gd" id="2_0r4wo"]
 [ext_resource type="Script" path="res://scripts/player/player_special.gd" id="3_special"]
 [ext_resource type="Script" path="res://scripts/player/player_guard.gd" id="4_guard"]
+[ext_resource type="Texture2D" uid="uid://bg823h1rjomu6" path="res://art/player/player000.png" id="5_180ig"]
+[ext_resource type="Texture2D" uid="uid://ctj2axi56k0x8" path="res://art/player/player001.png" id="6_20koh"]
+[ext_resource type="Texture2D" uid="uid://dn161wwovleh" path="res://art/player/player002.png" id="7_ov1oi"]
+[ext_resource type="Texture2D" uid="uid://d32x6qdwgsnb8" path="res://art/player/player003.png" id="8_rn7t0"]
+[ext_resource type="Texture2D" uid="uid://bvwh1ai6gt8a2" path="res://art/player/player004.png" id="9_8qjgm"]
+[ext_resource type="Texture2D" uid="uid://bpfvt3pxl83mv" path="res://art/player/player005.png" id="10_ejd4k"]
+[ext_resource type="Texture2D" uid="uid://da1vetlgswaag" path="res://art/player/player006.png" id="11_2xrq6"]
+[ext_resource type="Texture2D" uid="uid://clq5bhypyghx8" path="res://art/player/player007.png" id="12_pi3ps"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8f7hj"]
-size = Vector2(24, 32)
+size = Vector2(63.75, 62)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
 size = Vector2(26, 42)
 
-[node name="Player" type="CharacterBody2D"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_kswpp"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_180ig")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_20koh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_ov1oi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_rn7t0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_8qjgm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_ejd4k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_2xrq6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_pi3ps")
+}],
+"loop": true,
+"name": &"left",
+"speed": 5.0
+}]
+
+[node name="Player" type="CharacterBody2D" unique_id=1904471137]
 position = Vector2(260, 520)
 script = ExtResource("1_i2wq8")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=567744392]
+position = Vector2(0, 0)
 shape = SubResource("RectangleShape2D_8f7hj")
 
-[node name="BodyVisual" type="Polygon2D" parent="."]
-color = Color(0.309804, 0.756863, 1, 1)
-polygon = PackedVector2Array(-12, -16, 12, -16, 12, 16, -12, 16)
-
-[node name="AttackHitbox" type="Area2D" parent="."]
+[node name="AttackHitbox" type="Area2D" parent="." unique_id=204427031]
 position = Vector2(0, -34)
 monitoring = false
 monitorable = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox" unique_id=1374996697]
 shape = SubResource("RectangleShape2D_attack")
 
-[node name="AttackDebugVisual" type="Polygon2D" parent="AttackHitbox"]
+[node name="AttackDebugVisual" type="Polygon2D" parent="AttackHitbox" unique_id=552511428]
 color = Color(1, 0.34902, 0.34902, 0.32)
 polygon = PackedVector2Array(-13, -21, 13, -21, 13, 21, -13, 21)
 
-[node name="AttackComponent" type="Node" parent="."]
+[node name="AttackComponent" type="Node" parent="." unique_id=1709149831]
 script = ExtResource("2_0r4wo")
 
-[node name="GuardComponent" type="Node" parent="."]
+[node name="GuardComponent" type="Node" parent="." unique_id=715003292]
 script = ExtResource("4_guard")
 
-[node name="SpecialComponent" type="Node" parent="."]
+[node name="SpecialComponent" type="Node" parent="." unique_id=1731093265]
 script = ExtResource("3_special")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=243491166]
+scale = Vector2(0.25, 0.25)
+sprite_frames = SubResource("SpriteFrames_kswpp")
+animation = &"left"

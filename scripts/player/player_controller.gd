@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-@export var move_speed: float = 260.0
+@export var move_speed: float = 390.0
 @export var accel: float = 1800.0
 @export var decel: float = 2200.0
 @export var jump_velocity: float = -420.0
@@ -23,11 +23,12 @@ var _bounce_cd_left: float = 0.0
 @onready var guard_component: Node = get_node_or_null("GuardComponent")
 @onready var attack_component: Node = get_node_or_null("AttackComponent")
 @onready var special_component: Node = get_node_or_null("SpecialComponent")
-@onready var body_visual: CanvasItem = $BodyVisual
+@onready var animated_sprite: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 
 func _ready() -> void:
 	add_to_group("player")
 	_validate_input_actions()
+	_validate_visual_nodes()
 
 func _physics_process(delta: float) -> void:
 	var input_dir := _read_move_axis()
@@ -37,6 +38,8 @@ func _physics_process(delta: float) -> void:
 	_update_guard(delta)
 	if _bounce_cd_left > 0.0:
 		_bounce_cd_left = maxf(0.0, _bounce_cd_left - delta)
+
+	_update_move_visual(input_dir)
 	
 	move_and_slide()
 	
@@ -75,12 +78,30 @@ func _update_guard(delta: float) -> void:
 	mobile_guard_pressed = false
 
 func _update_guard_visual() -> void:
-	if body_visual == null:
+	if animated_sprite == null:
 		return
 	if is_guarding():
-		body_visual.modulate = Color(0.65, 0.8, 1.0, 1.0)
+		animated_sprite.modulate = Color(0.65, 0.8, 1.0, 1.0)
 	else:
-		body_visual.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		animated_sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+func _update_move_visual(input_dir: float) -> void:
+	if animated_sprite == null:
+		return
+	if animated_sprite.sprite_frames == null:
+		return
+	if not animated_sprite.sprite_frames.has_animation(&"left"):
+		return
+
+	if input_dir < 0.0:
+		if animated_sprite.animation != &"left" or not animated_sprite.is_playing():
+			animated_sprite.play(&"left")
+		return
+
+	if animated_sprite.animation == &"left" and animated_sprite.is_playing():
+		animated_sprite.stop()
+		animated_sprite.frame = 0
+		animated_sprite.frame_progress = 0.0
 
 func _read_move_axis() -> float:
 	var axis := Input.get_axis("move_left", "move_right")
@@ -200,6 +221,16 @@ func _validate_input_actions() -> void:
 	for action in required_actions:
 		if not InputMap.has_action(action):
 			push_warning("[PlayerController] Missing input action: %s" % action)
+
+func _validate_visual_nodes() -> void:
+	if animated_sprite == null:
+		push_warning("[PlayerController] AnimatedSprite2D node not found; move animation will be skipped.")
+		return
+	if animated_sprite.sprite_frames == null:
+		push_warning("[PlayerController] AnimatedSprite2D has no SpriteFrames; move animation will be skipped.")
+		return
+	if not animated_sprite.sprite_frames.has_animation(&"left"):
+		push_warning("[PlayerController] Missing player animation: left")
 
 func _debug_tick(delta: float) -> void:
 	if not debug_print:

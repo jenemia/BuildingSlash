@@ -8,6 +8,7 @@ extends Node2D
 @onready var ground_collision: CollisionShape2D = $Ground/CollisionShape2D
 @onready var ground_visual: Polygon2D = $Ground/GroundVisual
 @onready var player: Node2D = $Player
+@onready var player_collision: CollisionShape2D = $Player/CollisionShape2D
 @onready var camera: Camera2D = $Player/Camera2D
 
 func _ready() -> void:
@@ -41,8 +42,18 @@ func _layout_for_viewport() -> void:
 
 	if player != null:
 		var top_y := ground.position.y - half_h
-		player.position.y = top_y - player_spawn_height_from_ground
+		player.position.y = top_y - _get_player_ground_offset()
 
 	if camera != null and lock_camera_to_viewport:
 		camera.top_level = true
 		camera.global_position = viewport_size * 0.5
+
+func _get_player_ground_offset() -> float:
+	if player_collision == null:
+		return player_spawn_height_from_ground
+
+	var rect := player_collision.shape as RectangleShape2D
+	if rect == null:
+		return player_spawn_height_from_ground
+
+	return player_collision.position.y + rect.size.y * 0.5

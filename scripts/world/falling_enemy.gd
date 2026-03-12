@@ -48,6 +48,8 @@ func _apply_launch(source: Node = null) -> void:
 	var force := launch_up_force * (1.0 - launch_resistance)
 	force = clampf(force, launch_min_force, launch_max_force)
 	velocity.y = minf(velocity.y, -force)
+	# 밀착 충돌 상태에서도 공중 띄우기가 즉시 보이도록 미세 분리
+	global_position.y -= 6.0
 	_launch_cd_left = launch_cooldown
 
 	if debug_print:
