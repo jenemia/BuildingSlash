@@ -5,6 +5,7 @@ const BlockData = preload("res://scripts/world/block_data.gd")
 @export var max_floors: int = 10
 @export var floor_height: float = 28.0
 @export var floor_width: float = 180.0
+@export var visual_size_scale: float = 1.25
 @export var gravity_scale: float = 1.0
 @export var max_fall_speed: float = 520.0
 @export var despawn_margin: float = 220.0
@@ -99,15 +100,19 @@ func break_block() -> void:
 func _rebuild_visual_and_collision() -> void:
 	var total_h := current_floors * floor_height
 
+	# 충돌 히트박스는 월드 단위 고정(해상도 비의존)
 	var shape := collision_shape.shape as RectangleShape2D
 	shape.size = Vector2(floor_width, total_h)
 	collision_shape.position = Vector2(0.0, -total_h * 0.5)
 
+	# 비주얼만 크기 조정
+	var visual_w := floor_width * visual_size_scale
+	var visual_h := total_h * visual_size_scale
 	var points := PackedVector2Array([
-		Vector2(-floor_width * 0.5, -total_h),
-		Vector2(floor_width * 0.5, -total_h),
-		Vector2(floor_width * 0.5, 0),
-		Vector2(-floor_width * 0.5, 0)
+		Vector2(-visual_w * 0.5, -visual_h),
+		Vector2(visual_w * 0.5, -visual_h),
+		Vector2(visual_w * 0.5, 0),
+		Vector2(-visual_w * 0.5, 0)
 	])
 	body_visual.polygon = points
 	body_visual.vertex_colors = PackedColorArray([
@@ -120,15 +125,18 @@ func _rebuild_visual_and_collision() -> void:
 
 func _draw() -> void:
 	var total_h := current_floors * floor_height
-	var left := -floor_width * 0.5
-	var right := floor_width * 0.5
+	var visual_w := floor_width * visual_size_scale
+	var visual_h := total_h * visual_size_scale
+	var visual_floor_h := floor_height * visual_size_scale
+	var left := -visual_w * 0.5
+	var right := visual_w * 0.5
 
 	for i in range(current_floors):
-		var y_top := -total_h + i * floor_height
-		var y_bottom := y_top + floor_height
+		var y_top := -visual_h + i * visual_floor_h
+		var y_bottom := y_top + visual_floor_h
 		var t := float(i) / maxf(1.0, float(max_floors - 1))
 		var floor_color := _color_top.lerp(_color_bottom, t)
-		draw_rect(Rect2(Vector2(left, y_top), Vector2(floor_width, floor_height - 1.0)), floor_color, true)
+		draw_rect(Rect2(Vector2(left, y_top), Vector2(visual_w, visual_floor_h - 1.0)), floor_color, true)
 		draw_line(Vector2(left, y_bottom), Vector2(right, y_bottom), Color(0.10, 0.10, 0.14, 0.78), 1.5)
 
-	draw_rect(Rect2(Vector2(left, -total_h), Vector2(floor_width, total_h)), Color(0.1, 0.1, 0.14, 0.95), false, 2.0)
+	draw_rect(Rect2(Vector2(left, -visual_h), Vector2(visual_w, visual_h)), Color(0.1, 0.1, 0.14, 0.95), false, 2.0)
