@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_i2wq8"]
 [ext_resource type="Script" path="res://scripts/player/player_attack.gd" id="2_0r4wo"]
+[ext_resource type="Script" path="res://scripts/player/player_special.gd" id="3_special"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8f7hj"]
 size = Vector2(24, 32)
@@ -34,3 +35,6 @@ polygon = PackedVector2Array(-13, -21, 13, -21, 13, 21, -13, 21)
 
 [node name="AttackComponent" type="Node" parent="."]
 script = ExtResource("2_0r4wo")
+
+[node name="SpecialComponent" type="Node" parent="."]
+script = ExtResource("3_special")

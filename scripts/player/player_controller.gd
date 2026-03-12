@@ -20,8 +20,9 @@ var mobile_guard_pressed: bool = false
 var _debug_accum: float = 0.0
 var _bounce_cd_left: float = 0.0
 
-@onready var guard_component: Node = $GuardComponent
-@onready var attack_component: Node = $AttackComponent
+@onready var guard_component: Node = get_node_or_null("GuardComponent")
+@onready var attack_component: Node = get_node_or_null("AttackComponent")
+@onready var special_component: Node = get_node_or_null("SpecialComponent")
 @onready var body_visual: CanvasItem = $BodyVisual
 
 func _ready() -> void:
@@ -153,6 +154,23 @@ func is_attack_timing() -> bool:
 		return bool(attack_component.call("is_attack_active"))
 	return false
 
+func get_special_current() -> float:
+	if special_component == null:
+		return 0.0
+	return float(special_component.get("special_gauge"))
+
+func get_special_max() -> float:
+	if special_component == null:
+		return 0.0
+	return float(special_component.get("max_special_gauge"))
+
+func get_special_ratio() -> float:
+	if special_component == null:
+		return 0.0
+	if special_component.has_method("get_gauge_ratio"):
+		return float(special_component.call("get_gauge_ratio"))
+	return 0.0
+
 func request_contact_bounce(source: Node = null, normal: Vector2 = Vector2.UP, force_attack_bonus: bool = false) -> bool:
 	if _bounce_cd_left > 0.0:
 		return false
@@ -178,7 +196,7 @@ func request_contact_bounce(source: Node = null, normal: Vector2 = Vector2.UP, f
 	return true
 
 func _validate_input_actions() -> void:
-	var required_actions := ["move_left", "move_right", "jump", "guard"]
+	var required_actions := ["move_left", "move_right", "jump", "guard", "special"]
 	for action in required_actions:
 		if not InputMap.has_action(action):
 			push_warning("[PlayerController] Missing input action: %s" % action)

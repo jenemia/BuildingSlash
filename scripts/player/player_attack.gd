@@ -1,5 +1,7 @@
 extends Node
 
+signal hit_confirmed(target: Node, damage: int)
+
 @export var debug_print: bool = true
 @export var attack_damage: int = 1
 @export var attack_cooldown: float = 0.25
@@ -84,6 +86,7 @@ func _try_apply_hit(target: Node) -> void:
 
 	if target.has_method("take_hit"):
 		target.call("take_hit", attack_damage, player)
+		emit_signal("hit_confirmed", target, attack_damage)
 		if debug_print:
 			print("[Attack] hit target=%s damage=%d" % [target.name, attack_damage])
 		return
