@@ -48,6 +48,17 @@ script = ExtResource("8_progress")
 [node name="GameFlow" type="Node" parent="." unique_id=1978976056]
 script = ExtResource("9_flow")
 
+[node name="VersionOverlay" type="CanvasLayer" parent="." unique_id=164444321]
+layer = 30
+
+[node name="VersionLabel" type="Label" parent="VersionOverlay" unique_id=566123990]
+offset_left = 1080.0
+offset_top = 14.0
+offset_right = 1260.0
+offset_bottom = 44.0
+horizontal_alignment = 2
+text = "v0.0.0"
+
 [node name="MobileControls" type="CanvasLayer" parent="." unique_id=1617103478]
 layer = 10
 
