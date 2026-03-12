@@ -4,7 +4,7 @@ extends Node
 @export var attack_damage: int = 1
 @export var attack_cooldown: float = 0.25
 @export var attack_active_time: float = 0.08
-@export var attack_offset_x: float = 24.0
+@export var attack_offset: Vector2 = Vector2(0.0, -34.0)
 
 @onready var player: CharacterBody2D = get_parent() as CharacterBody2D
 @onready var hitbox: Area2D = $"../AttackHitbox"
@@ -12,7 +12,6 @@ extends Node
 var is_attacking: bool = false
 var cooldown_left: float = 0.0
 var active_left: float = 0.0
-var attack_facing: int = 1
 var _already_hit: Dictionary = {}
 
 func _ready() -> void:
@@ -46,8 +45,7 @@ func _try_start_attack() -> void:
 	cooldown_left = attack_cooldown
 	_already_hit.clear()
 
-	attack_facing = _get_player_facing()
-	hitbox.position.x = attack_offset_x * attack_facing
+	hitbox.position = attack_offset
 	hitbox.monitoring = true
 
 	# 이미 겹쳐 있는 대상도 첫 프레임에 놓치지 않도록 즉시 검사
@@ -58,7 +56,7 @@ func _try_start_attack() -> void:
 			_try_apply_hit(area.get_parent())
 
 	if debug_print:
-		print("[Attack] start facing=%d" % attack_facing)
+		print("[Attack] start(upward)")
 
 func _end_attack() -> void:
 	is_attacking = false
@@ -93,12 +91,6 @@ func _try_apply_hit(target: Node) -> void:
 	if target.is_in_group("hittable"):
 		if debug_print:
 			print("[Attack] hittable(no take_hit) target=%s" % target.name)
-
-func _get_player_facing() -> int:
-	if player != null and player.has_method("get_facing"):
-		var value := int(player.call("get_facing"))
-		return -1 if value < 0 else 1
-	return 1
 
 func _validate_input_actions() -> void:
 	if not InputMap.has_action("attack"):

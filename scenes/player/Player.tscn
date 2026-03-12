@@ -7,7 +7,7 @@
 size = Vector2(24, 32)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
-size = Vector2(28, 18)
+size = Vector2(26, 42)
 
 [node name="Player" type="CharacterBody2D"]
 position = Vector2(260, 520)
@@ -21,7 +21,7 @@ color = Color(0.309804, 0.756863, 1, 1)
 polygon = PackedVector2Array(-12, -16, 12, -16, 12, 16, -12, 16)
 
 [node name="AttackHitbox" type="Area2D" parent="."]
-position = Vector2(24, 0)
+position = Vector2(0, -34)
 monitoring = false
 monitorable = false
 
@@ -30,7 +30,7 @@ shape = SubResource("RectangleShape2D_attack")
 
 [node name="AttackDebugVisual" type="Polygon2D" parent="AttackHitbox"]
 color = Color(1, 0.34902, 0.34902, 0.32)
-polygon = PackedVector2Array(-14, -9, 14, -9, 14, 9, -14, 9)
+polygon = PackedVector2Array(-13, -21, 13, -21, 13, 21, -13, 21)
 
 [node name="AttackComponent" type="Node" parent="."]
 script = ExtResource("2_0r4wo")

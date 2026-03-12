@@ -1,11 +1,11 @@
 extends Node2D
 
 @export var enemy_scene: PackedScene
-@export var spawn_interval: float = 1.4
-@export var spawn_x_min: float = 260.0
-@export var spawn_x_max: float = 1120.0
-@export var spawn_y: float = -120.0
-@export var max_alive: int = 8
+@export var spawn_interval: float = 1.8
+@export var spawn_x_min: float = 700.0
+@export var spawn_x_max: float = 760.0
+@export var spawn_y: float = -40.0
+@export var max_alive: int = 1
 
 var _time_left: float = 0.0
 
@@ -23,7 +23,7 @@ func _process(delta: float) -> void:
 func _spawn_one() -> void:
 	if enemy_scene == null:
 		return
-	if get_tree().get_nodes_in_group("hittable").size() >= max_alive:
+	if get_tree().get_nodes_in_group("building_enemy").size() >= max_alive:
 		return
 
 	var enemy := enemy_scene.instantiate() as Node2D

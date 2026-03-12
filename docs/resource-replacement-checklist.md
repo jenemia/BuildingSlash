@@ -90,7 +90,7 @@
 
 ## 8) 낙하 적(임시 리소스) 교체
 - [ ] 파일: `scenes/world/FallingEnemy.tscn`, `scripts/world/falling_enemy.gd`, `scripts/world/falling_enemy_spawner.gd`, `node_2d.tscn`
-- [ ] 현재 임시: 단색 사각형 적 + 단순 낙하/HP 감소 후 제거
+- [ ] 현재 임시: 10층 색상 구분 도형 건물 + 층 감소(1히트=1층)
 - [ ] 교체 대상:
   - [ ] 실제 적 프리팹(애니메이션/피격반응/사망)
   - [ ] 적별 패턴(낙하 속도, 체력, 특성)

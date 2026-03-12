@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/building_enemy.gd" id="1_bldng"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bldng"]
+size = Vector2(180, 280)
+
+[node name="BuildingEnemy" type="CharacterBody2D"]
+script = ExtResource("1_bldng")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_bldng")
+position = Vector2(0, -140)
+
+[node name="BodyVisual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-90, -280, 90, -280, 90, 0, -90, 0)
+color = Color(0.66, 0.7, 0.78, 0.85)
