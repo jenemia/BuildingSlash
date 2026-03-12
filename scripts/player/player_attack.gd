@@ -92,6 +92,9 @@ func _try_apply_hit(target: Node) -> void:
 		if debug_print:
 			print("[Attack] hittable(no take_hit) target=%s" % target.name)
 
+func is_attack_active() -> bool:
+	return is_attacking
+
 func _validate_input_actions() -> void:
 	if not InputMap.has_action("attack"):
 		push_warning("[PlayerAttack] Missing input action: attack")

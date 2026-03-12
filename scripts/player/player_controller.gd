@@ -7,6 +7,9 @@ extends CharacterBody2D
 @export var gravity_scale: float = 1.0
 @export var max_fall_speed: float = 980.0
 @export var debug_print: bool = false
+@export var contact_bounce_velocity: float = 360.0
+@export var contact_bounce_attack_bonus: float = 120.0
+@export var contact_bounce_cooldown: float = 0.12
 
 var is_grounded: bool = false
 var facing: int = 1
@@ -15,8 +18,10 @@ var mobile_jump_requested: bool = false
 var mobile_attack_requested: bool = false
 var mobile_guard_pressed: bool = false
 var _debug_accum: float = 0.0
+var _bounce_cd_left: float = 0.0
 
 @onready var guard_component: Node = $GuardComponent
+@onready var attack_component: Node = $AttackComponent
 @onready var body_visual: CanvasItem = $BodyVisual
 
 func _ready() -> void:
@@ -29,6 +34,8 @@ func _physics_process(delta: float) -> void:
 	_apply_vertical(delta)
 	_try_jump()
 	_update_guard(delta)
+	if _bounce_cd_left > 0.0:
+		_bounce_cd_left = maxf(0.0, _bounce_cd_left - delta)
 	
 	move_and_slide()
 	
@@ -138,6 +145,37 @@ func apply_incoming_damage(base_damage: float) -> float:
 	if debug_print:
 		print("[Damage] base=%.2f final=%.2f guarding=%s" % [base_damage, final_damage, str(is_guarding())])
 	return final_damage
+
+func is_attack_timing() -> bool:
+	if attack_component == null:
+		return false
+	if attack_component.has_method("is_attack_active"):
+		return bool(attack_component.call("is_attack_active"))
+	return false
+
+func request_contact_bounce(source: Node = null, normal: Vector2 = Vector2.UP, force_attack_bonus: bool = false) -> bool:
+	if _bounce_cd_left > 0.0:
+		return false
+
+	var airborne := not is_on_floor()
+	var attack_timing := force_attack_bonus or is_attack_timing()
+	if not airborne and not attack_timing:
+		return false
+
+	var bounce_strength := contact_bounce_velocity
+	if attack_timing:
+		bounce_strength += contact_bounce_attack_bonus
+
+	# normal 반대 방향으로 튕기되, 본 요청의 핵심은 상향 반발력이므로 최소 위쪽 속도를 보장한다.
+	var up_bounce := -absf(bounce_strength * maxf(0.5, -normal.y))
+	velocity.y = minf(velocity.y, up_bounce)
+	_bounce_cd_left = contact_bounce_cooldown
+
+	if debug_print:
+		var source_name := "unknown" if source == null else source.name
+		print("[Bounce] source=%s attack_timing=%s vy=%.1f" % [source_name, str(attack_timing), velocity.y])
+
+	return true
 
 func _validate_input_actions() -> void:
 	var required_actions := ["move_left", "move_right", "jump", "guard"]

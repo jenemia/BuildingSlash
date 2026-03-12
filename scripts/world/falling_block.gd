@@ -49,6 +49,11 @@ func _physics_process(delta: float) -> void:
 		var collider := col.get_collider()
 		if collider is Node and collider.is_in_group("player"):
 			emit_signal("touched_player", collider)
+			if collider.has_method("request_contact_bounce"):
+				var boosted := false
+				if collider.has_method("is_attack_timing"):
+					boosted = bool(collider.call("is_attack_timing"))
+				collider.call("request_contact_bounce", self, col.get_normal(), boosted)
 			if debug_print:
 				print("[FallingBlock] touched player=%s" % collider.name)
 
