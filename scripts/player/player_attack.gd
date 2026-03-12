@@ -30,7 +30,11 @@ func _physics_process(delta: float) -> void:
 		if active_left <= 0.0:
 			_end_attack()
 
-	if Input.is_action_just_pressed("attack"):
+	var mobile_attack := false
+	if player != null and player.has_method("consume_mobile_attack_request"):
+		mobile_attack = bool(player.call("consume_mobile_attack_request"))
+	
+	if Input.is_action_just_pressed("attack") or mobile_attack:
 		_try_start_attack()
 
 func _try_start_attack() -> void:

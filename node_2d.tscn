@@ -41,3 +41,4 @@ layer = 10
 
 [connection signal="move_axis_changed" from="MobileControls/MobileJoystick" to="Player" method="set_mobile_move_axis"]
 [connection signal="jump_triggered" from="MobileControls/MobileJoystick" to="Player" method="trigger_mobile_jump"]
+[connection signal="attack_triggered" from="MobileControls/MobileJoystick" to="Player" method="trigger_mobile_attack"]

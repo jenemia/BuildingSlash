@@ -53,15 +53,27 @@
   - [ ] 점프 높이/체공 시간 적절성
   - [ ] 낙하속도 체감이 과도하지 않은지
 
-## 6) 모바일 조이스틱(임시 도형) 교체/튜닝
+## 6) 모바일 조이스틱/공격버튼(임시 도형) 교체/튜닝
 - [ ] 파일: `scenes/ui/MobileJoystick.tscn`, `scripts/ui/mobile_joystick.gd`
-- [ ] 현재 임시: 코드 드로잉 원형 조이스틱(`draw_circle`)
+- [ ] 현재 임시: 코드 드로잉 원형 조이스틱 + 우하단 공격버튼(`draw_circle`)
+- [ ] 1차 프리셋(적용됨):
+  - `base_radius=172`
+  - `knob_radius=70`
+  - `left_margin=188`
+  - `bottom_margin=190`
+  - `deadzone=0.18`
+  - `jump_threshold=0.62`
+  - `attack_button_radius=68`
+  - `attack_right_margin=128`
+  - `attack_bottom_margin=156`
 - [ ] 교체 대상:
-  - [ ] 실제 UI 스프라이트(베이스/노브)
+  - [ ] 실제 UI 스프라이트(베이스/노브/공격버튼)
   - [ ] 해상도별 스케일 프리셋
 - [ ] 확인 포인트:
   - [ ] 좌/우 입력 민감도(deadzone) 적정
   - [ ] 위로 밀기 점프 임계치(jump_threshold) 적정
+  - [ ] 공격버튼 위치/크기가 엄지 터치에 맞는지
+  - [ ] 모바일 웹에서만 보이고 데스크톱에서는 숨김 유지
   - [ ] 멀티터치 시 오동작 없음
 
 ## 7) T02 공격 리소스 교체 포인트

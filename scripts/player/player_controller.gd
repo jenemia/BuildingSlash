@@ -12,6 +12,7 @@ var is_grounded: bool = false
 var facing: int = 1
 var mobile_axis: float = 0.0
 var mobile_jump_requested: bool = false
+var mobile_attack_requested: bool = false
 var _debug_accum: float = 0.0
 
 func _ready() -> void:
@@ -71,6 +72,15 @@ func set_mobile_move_axis(axis: float) -> void:
 
 func trigger_mobile_jump() -> void:
 	mobile_jump_requested = true
+
+func trigger_mobile_attack() -> void:
+	mobile_attack_requested = true
+
+func consume_mobile_attack_request() -> bool:
+	if mobile_attack_requested:
+		mobile_attack_requested = false
+		return true
+	return false
 
 func get_facing() -> int:
 	return facing
