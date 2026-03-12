@@ -55,6 +55,8 @@ func _on_node_added(node: Node) -> void:
 func _register_block(block: Node) -> void:
 	if block.has_signal("touched_player") and not block.is_connected("touched_player", _on_block_touched_player):
 		block.connect("touched_player", _on_block_touched_player)
+	if block.has_signal("hit_ground") and not block.is_connected("hit_ground", _on_block_hit_ground):
+		block.connect("hit_ground", _on_block_hit_ground)
 	if block.has_signal("block_broken") and not block.is_connected("block_broken", _on_block_broken):
 		block.connect("block_broken", _on_block_broken)
 
@@ -65,6 +67,14 @@ func _on_block_touched_player(_target: Node) -> void:
 	if player.has_method("apply_incoming_damage"):
 		final_damage = float(player.call("apply_incoming_damage", final_damage))
 	hp = maxi(0, hp - int(ceil(final_damage)))
+	_update_hud()
+	if hp <= 0:
+		_end_run()
+
+func _on_block_hit_ground(_block: Node, _tier: String, ground_damage: int) -> void:
+	if not is_run_active:
+		return
+	hp = maxi(0, hp - maxi(1, ground_damage))
 	_update_hud()
 	if hp <= 0:
 		_end_run()

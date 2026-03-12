@@ -17,6 +17,7 @@ const BlockData = preload("res://scripts/world/block_data.gd")
 @export_enum("SOFT", "NORMAL", "HARD") var tier_name: String = "NORMAL"
 
 signal touched_player(player: Node)
+signal hit_ground(block: Node, tier: String, ground_damage: int)
 signal block_broken(block: Node, tier: String, score_value: int)
 
 var current_floors: int
@@ -24,8 +25,10 @@ var block_tier: int = BlockData.Tier.NORMAL
 var max_hp: int = 1
 var current_hp: int = 1
 var score_value: int = 0
+var ground_hit_damage: int = 8
 var launch_resistance: float = 0.35
 var _launch_cd_left: float = 0.0
+var _ground_hit_processed: bool = false
 var _color_top: Color = Color(0.93, 0.84, 0.58, 0.95)
 var _color_bottom: Color = Color(0.82, 0.68, 0.34, 0.95)
 
@@ -58,6 +61,10 @@ func _physics_process(delta: float) -> void:
 		if col == null:
 			continue
 		var collider := col.get_collider()
+		if _is_ground_collider(collider):
+			_emit_ground_hit_once()
+			queue_free()
+			return
 		if collider is Node and collider.is_in_group("player"):
 			emit_signal("touched_player", collider)
 			if collider.has_method("request_contact_bounce"):
@@ -76,6 +83,7 @@ func set_block_tier(tier: int) -> void:
 	max_hp = int(config.get("max_hp", 1))
 	current_hp = max_hp
 	score_value = int(config.get("score_value", 0))
+	ground_hit_damage = int(config.get("ground_hit_damage", 8))
 	launch_resistance = clampf(float(config.get("launch_resistance", 0.35)), 0.0, 0.95)
 	_color_top = config.get("color_top", Color.WHITE)
 	_color_bottom = config.get("color_bottom", Color.GRAY)
@@ -123,6 +131,20 @@ func _apply_launch(source: Node = null) -> void:
 	if debug_print:
 		var source_name: String = "unknown" if source == null else String(source.name)
 		print("[FallingBlock] launch by=%s tier=%s force=%.1f vy=%.1f" % [source_name, tier_name, force, velocity.y])
+
+func _is_ground_collider(collider: Variant) -> bool:
+	if not (collider is Node):
+		return false
+	var node := collider as Node
+	return node.name == "Ground" or node.is_in_group("ground")
+
+func _emit_ground_hit_once() -> void:
+	if _ground_hit_processed:
+		return
+	_ground_hit_processed = true
+	emit_signal("hit_ground", self, tier_name, ground_hit_damage)
+	if debug_print:
+		print("[FallingBlock] hit ground tier=%s damage=%d" % [tier_name, ground_hit_damage])
 
 func _rebuild_visual_and_collision() -> void:
 	var total_h := current_floors * floor_height
