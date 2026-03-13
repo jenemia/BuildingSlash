@@ -1,8 +1,11 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/falling_block.gd" id="1_flblk"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_flblk"]
+size = Vector2(180, 280)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sensor"]
 size = Vector2(180, 280)
 
 [node name="FallingBlock" type="CharacterBody2D"]
@@ -10,6 +13,16 @@ script = ExtResource("1_flblk")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_flblk")
+position = Vector2(0, -140)
+
+[node name="TouchSensor" type="Area2D" parent="."]
+monitoring = true
+monitorable = false
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TouchSensor"]
+shape = SubResource("RectangleShape2D_sensor")
 position = Vector2(0, -140)
 
 [node name="BodyVisual" type="Polygon2D" parent="."]

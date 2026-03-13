@@ -3,7 +3,9 @@ extends Node
 const RewardCalculator = preload("res://scripts/meta/reward_calculator.gd")
 
 @export var max_hp: int = 100
-@export var touch_damage: int = 18
+@export var hit_player_damage: int = 18
+@export var reached_ground_damage_default: int = 8
+@export var debug_damage_events: bool = false
 
 @onready var root: Node2D = get_parent() as Node2D
 @onready var player: Node = root.get_node("Player")
@@ -17,6 +19,7 @@ var hp: int
 var score: int = 0
 var survival_sec: float = 0.0
 var is_run_active: bool = true
+var _damage_dedupe: Dictionary = {}
 
 func _ready() -> void:
 	hp = max_hp
@@ -53,28 +56,71 @@ func _on_node_added(node: Node) -> void:
 		_register_block(node)
 
 func _register_block(block: Node) -> void:
-	if block.has_signal("touched_player") and not block.is_connected("touched_player", _on_block_touched_player):
+	if block.has_signal("hit_player") and not block.is_connected("hit_player", _on_block_hit_player):
+		block.connect("hit_player", _on_block_hit_player)
+	elif block.has_signal("touched_player") and not block.is_connected("touched_player", _on_block_touched_player):
+		# Backward compatibility
 		block.connect("touched_player", _on_block_touched_player)
-	if block.has_signal("hit_ground") and not block.is_connected("hit_ground", _on_block_hit_ground):
+
+	if block.has_signal("reached_ground") and not block.is_connected("reached_ground", _on_block_reached_ground):
+		block.connect("reached_ground", _on_block_reached_ground)
+	elif block.has_signal("hit_ground") and not block.is_connected("hit_ground", _on_block_hit_ground):
+		# Backward compatibility
 		block.connect("hit_ground", _on_block_hit_ground)
+
 	if block.has_signal("block_broken") and not block.is_connected("block_broken", _on_block_broken):
 		block.connect("block_broken", _on_block_broken)
 
-func _on_block_touched_player(_target: Node) -> void:
+func _on_block_hit_player(block: Node, target: Node) -> void:
 	if not is_run_active:
 		return
-	var final_damage := float(touch_damage)
-	if player.has_method("apply_incoming_damage"):
-		final_damage = float(player.call("apply_incoming_damage", final_damage))
-	hp = maxi(0, hp - int(ceil(final_damage)))
-	_update_hud()
-	if hp <= 0:
-		_end_run()
+	var final_damage := float(hit_player_damage)
+	if target != null and target.has_method("apply_incoming_damage"):
+		final_damage = float(target.call("apply_incoming_damage", final_damage))
+	apply_damage({
+		"source_type": "falling_block",
+		"source_id": block.get_instance_id() if block != null else 0,
+		"cause": "hit_player",
+		"amount": int(ceil(final_damage)),
+	})
 
-func _on_block_hit_ground(_block: Node, _tier: String, ground_damage: int) -> void:
+func _on_block_touched_player(target: Node) -> void:
+	# Backward compatibility path (older block signal payload)
+	_on_block_hit_player(null, target)
+
+func _on_block_reached_ground(block: Node, _tier: String, ground_damage: int) -> void:
 	if not is_run_active:
 		return
-	hp = maxi(0, hp - maxi(1, ground_damage))
+	var resolved_ground_damage := ground_damage
+	if resolved_ground_damage <= 0:
+		resolved_ground_damage = reached_ground_damage_default
+	resolved_ground_damage = maxi(1, resolved_ground_damage)
+	apply_damage({
+		"source_type": "falling_block",
+		"source_id": block.get_instance_id() if block != null else 0,
+		"cause": "reached_ground",
+		"amount": resolved_ground_damage,
+	})
+
+func _on_block_hit_ground(block: Node, tier: String, ground_damage: int) -> void:
+	# Backward compatibility path
+	_on_block_reached_ground(block, tier, ground_damage)
+
+func apply_damage(event: Dictionary) -> void:
+	if not is_run_active:
+		return
+	var source_id := int(event.get("source_id", 0))
+	var cause := String(event.get("cause", "unknown"))
+	var amount := maxi(1, int(event.get("amount", 1)))
+	var dedupe_key := "%s:%s" % [str(source_id), cause]
+	if source_id != 0 and _damage_dedupe.has(dedupe_key):
+		return
+	if source_id != 0:
+		_damage_dedupe[dedupe_key] = true
+
+	hp = maxi(0, hp - amount)
+	if debug_damage_events:
+		print("[GameFlow] damage source=%s id=%d cause=%s amount=%d hp=%d/%d" % [String(event.get("source_type", "unknown")), source_id, cause, amount, hp, max_hp])
 	_update_hud()
 	if hp <= 0:
 		_end_run()

@@ -16,6 +16,9 @@ const BlockData = preload("res://scripts/world/block_data.gd")
 @export var debug_print: bool = false
 @export_enum("SOFT", "NORMAL", "HARD") var tier_name: String = "NORMAL"
 
+signal hit_player(block: Node, player: Node)
+signal reached_ground(block: Node, tier: String, ground_damage: int)
+# Backward compatibility signals
 signal touched_player(player: Node)
 signal hit_ground(block: Node, tier: String, ground_damage: int)
 signal block_broken(block: Node, tier: String, score_value: int)
@@ -29,16 +32,21 @@ var ground_hit_damage: int = 8
 var launch_resistance: float = 0.35
 var _launch_cd_left: float = 0.0
 var _ground_hit_processed: bool = false
+var _player_hit_processed: bool = false
 var _color_top: Color = Color(0.93, 0.84, 0.58, 0.95)
 var _color_bottom: Color = Color(0.82, 0.68, 0.34, 0.95)
 
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var body_visual: Polygon2D = $BodyVisual
+@onready var touch_sensor: Area2D = $TouchSensor
+@onready var touch_sensor_shape: CollisionShape2D = $TouchSensor/CollisionShape2D
 
 func _ready() -> void:
 	current_floors = max_floors
 	add_to_group("hittable")
 	add_to_group("falling_block")
+	if touch_sensor != null and not touch_sensor.body_entered.is_connected(_on_touch_sensor_body_entered):
+		touch_sensor.body_entered.connect(_on_touch_sensor_body_entered)
 	set_block_tier(BlockData.tier_from_name(tier_name))
 
 func _physics_process(delta: float) -> void:
@@ -66,14 +74,7 @@ func _physics_process(delta: float) -> void:
 			queue_free()
 			return
 		if collider is Node and collider.is_in_group("player"):
-			emit_signal("touched_player", collider)
-			if collider.has_method("request_contact_bounce"):
-				var boosted := false
-				if collider.has_method("is_attack_timing"):
-					boosted = bool(collider.call("is_attack_timing"))
-				collider.call("request_contact_bounce", self, col.get_normal(), boosted)
-			if debug_print:
-				print("[FallingBlock] touched player=%s" % collider.name)
+			_emit_player_hit_once(collider, col.get_normal())
 
 func set_block_tier(tier: int) -> void:
 	block_tier = tier
@@ -138,13 +139,35 @@ func _is_ground_collider(collider: Variant) -> bool:
 	var node := collider as Node
 	return node.name == "Ground" or node.is_in_group("ground")
 
+func _emit_player_hit_once(player: Node, contact_normal: Vector2 = Vector2.UP) -> void:
+	if _player_hit_processed:
+		return
+	_player_hit_processed = true
+	emit_signal("hit_player", self, player)
+	# Backward compatibility
+	emit_signal("touched_player", player)
+
+	if player != null and player.has_method("request_contact_bounce"):
+		var boosted := false
+		if player.has_method("is_attack_timing"):
+			boosted = bool(player.call("is_attack_timing"))
+		player.call("request_contact_bounce", self, contact_normal, boosted)
+	if debug_print and player != null:
+		print("[FallingBlock] hit player=%s" % player.name)
+
 func _emit_ground_hit_once() -> void:
 	if _ground_hit_processed:
 		return
 	_ground_hit_processed = true
+	emit_signal("reached_ground", self, tier_name, ground_hit_damage)
+	# Backward compatibility
 	emit_signal("hit_ground", self, tier_name, ground_hit_damage)
 	if debug_print:
-		print("[FallingBlock] hit ground tier=%s damage=%d" % [tier_name, ground_hit_damage])
+		print("[FallingBlock] reached ground tier=%s damage=%d" % [tier_name, ground_hit_damage])
+
+func _on_touch_sensor_body_entered(body: Node) -> void:
+	if body != null and body.is_in_group("player"):
+		_emit_player_hit_once(body, Vector2.UP)
 
 func _rebuild_visual_and_collision() -> void:
 	var total_h := current_floors * floor_height
@@ -156,6 +179,10 @@ func _rebuild_visual_and_collision() -> void:
 	var shape := collision_shape.shape as RectangleShape2D
 	shape.size = Vector2(floor_width, total_h)
 	collision_shape.position = Vector2(0.0, -total_h * 0.5)
+	if touch_sensor_shape != null and touch_sensor_shape.shape is RectangleShape2D:
+		var sensor_rect := touch_sensor_shape.shape as RectangleShape2D
+		sensor_rect.size = Vector2(floor_width, total_h)
+		touch_sensor_shape.position = Vector2(0.0, -total_h * 0.5)
 
 	# 비주얼만 크기 조정
 	var visual_w := floor_width * visual_size_scale
