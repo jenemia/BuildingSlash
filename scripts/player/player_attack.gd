@@ -15,6 +15,7 @@ var is_attacking: bool = false
 var cooldown_left: float = 0.0
 var active_left: float = 0.0
 var _already_hit: Dictionary = {}
+var _fallback_attack_prev: bool = false
 
 func _ready() -> void:
 	_validate_input_actions()
@@ -35,7 +36,7 @@ func _physics_process(delta: float) -> void:
 	if player != null and player.has_method("consume_mobile_attack_request"):
 		mobile_attack = bool(player.call("consume_mobile_attack_request"))
 	
-	if Input.is_action_just_pressed("attack") or mobile_attack:
+	if Input.is_action_just_pressed("attack") or _consume_fallback_attack_press() or mobile_attack:
 		_try_start_attack()
 
 func _try_start_attack() -> void:
@@ -97,6 +98,12 @@ func _try_apply_hit(target: Node) -> void:
 
 func is_attack_active() -> bool:
 	return is_attacking
+
+func _consume_fallback_attack_press() -> bool:
+	var now_pressed := Input.is_physical_key_pressed(KEY_Z)
+	var just_pressed := now_pressed and not _fallback_attack_prev
+	_fallback_attack_prev = now_pressed
+	return just_pressed
 
 func _validate_input_actions() -> void:
 	if not InputMap.has_action("attack"):

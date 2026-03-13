@@ -217,7 +217,7 @@ func request_contact_bounce(source: Node = null, normal: Vector2 = Vector2.UP, f
 	return true
 
 func _validate_input_actions() -> void:
-	var required_actions := ["move_left", "move_right", "jump", "guard", "special"]
+	var required_actions := ["move_left", "move_right", "jump", "attack", "guard", "special"]
 	for action in required_actions:
 		if not InputMap.has_action(action):
 			push_warning("[PlayerController] Missing input action: %s" % action)

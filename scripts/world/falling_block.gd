@@ -45,8 +45,10 @@ func _ready() -> void:
 	current_floors = max_floors
 	add_to_group("hittable")
 	add_to_group("falling_block")
-	if touch_sensor != null and not touch_sensor.body_entered.is_connected(_on_touch_sensor_body_entered):
-		touch_sensor.body_entered.connect(_on_touch_sensor_body_entered)
+	if touch_sensor != null:
+		if not touch_sensor.body_entered.is_connected(_on_touch_sensor_body_entered):
+			touch_sensor.body_entered.connect(_on_touch_sensor_body_entered)
+		_sync_touch_sensor_collision_mask()
 	set_block_tier(BlockData.tier_from_name(tier_name))
 
 func _physics_process(delta: float) -> void:
@@ -168,6 +170,16 @@ func _emit_ground_hit_once() -> void:
 func _on_touch_sensor_body_entered(body: Node) -> void:
 	if body != null and body.is_in_group("player"):
 		_emit_player_hit_once(body, Vector2.UP)
+
+func _sync_touch_sensor_collision_mask() -> void:
+	if touch_sensor == null:
+		return
+	var players := get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		return
+	var p := players[0]
+	if p is CollisionObject2D:
+		touch_sensor.collision_mask = (p as CollisionObject2D).collision_layer
 
 func _rebuild_visual_and_collision() -> void:
 	var total_h := current_floors * floor_height
