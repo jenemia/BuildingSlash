@@ -49,11 +49,28 @@ func _connect_ui() -> void:
 func _connect_world_events() -> void:
 	for block in get_tree().get_nodes_in_group("falling_block"):
 		_register_block(block)
-	get_tree().node_added.connect(_on_node_added)
+	if not get_tree().node_added.is_connected(_on_node_added):
+		get_tree().node_added.connect(_on_node_added)
 
 func _on_node_added(node: Node) -> void:
+	if node == null:
+		return
+	# node_added 시점엔 block._ready()가 아직 실행 전이라 그룹이 비어 있을 수 있음.
+	# 신호 보유 여부 기반으로 선등록하고, 그룹 조건은 deferred로 한 번 더 확인한다.
+	if _looks_like_falling_block(node):
+		_register_block(node)
+		return
+	call_deferred("_register_block_if_group_ready", node)
+
+func _register_block_if_group_ready(node: Node) -> void:
 	if node != null and node.is_in_group("falling_block"):
 		_register_block(node)
+
+func _looks_like_falling_block(node: Node) -> bool:
+	return node.has_signal("hit_player") \
+		or node.has_signal("reached_ground") \
+		or node.has_signal("touched_player") \
+		or node.has_signal("hit_ground")
 
 func _register_block(block: Node) -> void:
 	if block.has_signal("hit_player") and not block.is_connected("hit_player", _on_block_hit_player):
