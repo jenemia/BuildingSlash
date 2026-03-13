@@ -7,8 +7,6 @@
 [ext_resource type="PackedScene" path="res://scenes/world/FallingBlock.tscn" id="4_bldng"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CombatHUD.tscn" id="5_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ResultPanel.tscn" id="6_result"]
-[ext_resource type="PackedScene" path="res://scenes/meta/MetaMenu.tscn" id="7_meta"]
-[ext_resource type="Script" uid="uid://bmgpaxoruptv4" path="res://scripts/meta/meta_progression.gd" id="8_progress"]
 [ext_resource type="Script" uid="uid://bi8f6r3gqh4yk" path="res://scripts/main/game_flow.gd" id="9_flow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_41j68"]
@@ -39,11 +37,6 @@ block_scene = ExtResource("4_bldng")
 [node name="CombatHUD" parent="." unique_id=1493140299 instance=ExtResource("5_hud")]
 
 [node name="ResultPanel" parent="." unique_id=741790608 instance=ExtResource("6_result")]
-
-[node name="MetaMenu" parent="." unique_id=1105176678 instance=ExtResource("7_meta")]
-
-[node name="MetaProgression" type="Node" parent="." unique_id=1778809902]
-script = ExtResource("8_progress")
 
 [node name="GameFlow" type="Node" parent="." unique_id=1978976056]
 script = ExtResource("9_flow")

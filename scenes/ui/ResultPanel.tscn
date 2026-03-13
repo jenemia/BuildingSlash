@@ -34,5 +34,5 @@ text = "-"
 [node name="RetryButton" type="Button" parent="Panel/VBox/Buttons"]
 text = "다시 시작"
 
-[node name="MetaButton" type="Button" parent="Panel/VBox/Buttons"]
-text = "메타 업그레이드"
+[node name="LobbyButton" type="Button" parent="Panel/VBox/Buttons"]
+text = "로비로"

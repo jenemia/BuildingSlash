@@ -13,8 +13,6 @@ const RewardCalculator = preload("res://scripts/meta/reward_calculator.gd")
 @onready var spawner: Node = root.get_node_or_null("EnemySpawner")
 @onready var hud: CanvasLayer = root.get_node("CombatHUD")
 @onready var result_panel: CanvasLayer = root.get_node("ResultPanel")
-@onready var meta_menu: CanvasLayer = root.get_node("MetaMenu")
-@onready var progression: Node = root.get_node("MetaProgression")
 
 var hp: int
 var score: int = 0
@@ -38,14 +36,10 @@ func _process(delta: float) -> void:
 func _connect_ui() -> void:
 	if result_panel.has_signal("retry_pressed"):
 		result_panel.connect("retry_pressed", _on_retry_pressed)
-	if result_panel.has_signal("open_meta_pressed"):
-		result_panel.connect("open_meta_pressed", _on_open_meta_pressed)
-	if meta_menu.has_signal("close_pressed"):
-		meta_menu.connect("close_pressed", _on_close_meta_pressed)
-	if meta_menu.has_signal("upgrade_requested"):
-		meta_menu.connect("upgrade_requested", _on_upgrade_requested)
-	if progression.has_signal("progression_changed"):
-		progression.connect("progression_changed", _refresh_meta_menu)
+	if result_panel.has_signal("go_lobby_pressed"):
+		result_panel.connect("go_lobby_pressed", _on_go_lobby_pressed)
+	if MetaProgression.has_signal("progression_changed"):
+		MetaProgression.progression_changed.connect(_apply_progression_to_player)
 
 func _connect_world_events() -> void:
 	for block in get_tree().get_nodes_in_group("falling_block"):
@@ -56,8 +50,6 @@ func _connect_world_events() -> void:
 func _on_node_added(node: Node) -> void:
 	if node == null:
 		return
-	# node_added 시점엔 block._ready()가 아직 실행 전이라 그룹이 비어 있을 수 있음.
-	# 신호 보유 여부 기반으로 선등록하고, 그룹 조건은 deferred로 한 번 더 확인한다.
 	if _looks_like_falling_block(node):
 		_register_block(node)
 		return
@@ -77,13 +69,11 @@ func _register_block(block: Node) -> void:
 	if block.has_signal("hit_player") and not block.is_connected("hit_player", _on_block_hit_player):
 		block.connect("hit_player", _on_block_hit_player)
 	elif block.has_signal("touched_player") and not block.is_connected("touched_player", _on_block_touched_player):
-		# Backward compatibility
 		block.connect("touched_player", _on_block_touched_player)
 
 	if block.has_signal("reached_ground") and not block.is_connected("reached_ground", _on_block_reached_ground):
 		block.connect("reached_ground", _on_block_reached_ground)
 	elif block.has_signal("hit_ground") and not block.is_connected("hit_ground", _on_block_hit_ground):
-		# Backward compatibility
 		block.connect("hit_ground", _on_block_hit_ground)
 
 	if block.has_signal("block_broken") and not block.is_connected("block_broken", _on_block_broken):
@@ -104,7 +94,6 @@ func _on_block_hit_player(block: Node, target: Node) -> void:
 	})
 
 func _on_block_touched_player(target: Node) -> void:
-	# Backward compatibility path (older block signal payload)
 	_on_block_hit_player(null, target)
 
 func _on_block_reached_ground(block: Node, _tier: String, ground_damage: int) -> void:
@@ -122,7 +111,6 @@ func _on_block_reached_ground(block: Node, _tier: String, ground_damage: int) ->
 	})
 
 func _on_block_hit_ground(block: Node, tier: String, ground_damage: int) -> void:
-	# Backward compatibility path
 	_on_block_reached_ground(block, tier, ground_damage)
 
 func apply_damage(event: Dictionary) -> void:
@@ -156,41 +144,20 @@ func _end_run() -> void:
 	is_run_active = false
 	if spawner != null:
 		spawner.set_process(false)
+	Engine.time_scale = 0.0
 	var reward := RewardCalculator.calculate_reward(survival_sec, score)
-	progression.call("add_currency", reward)
+	MetaProgression.add_currency(reward)
 	result_panel.call("show_result", survival_sec, score, reward)
 
 func _on_retry_pressed() -> void:
-	get_tree().reload_current_scene()
+	SceneLoader.reload_current_scene()
 
-func _on_open_meta_pressed() -> void:
-	_refresh_meta_menu()
-	meta_menu.call("show_menu", progression.get("currency"), progression.get("upgrades"), _costs())
-
-func _on_close_meta_pressed() -> void:
-	meta_menu.call("hide_menu")
-
-func _on_upgrade_requested(key: String) -> void:
-	var bought := bool(progression.call("try_buy_upgrade", key))
-	if bought:
-		_apply_progression_to_player()
-	_refresh_meta_menu()
-
-func _refresh_meta_menu() -> void:
-	if meta_menu.visible:
-		meta_menu.call("show_menu", progression.get("currency"), progression.get("upgrades"), _costs())
+func _on_go_lobby_pressed() -> void:
+	SceneLoader.go_to_lobby()
 
 func _apply_progression_to_player() -> void:
-	progression.call("apply_to_player", player)
+	MetaProgression.apply_to_player(player)
 	_update_hud()
-
-func _costs() -> Dictionary:
-	return {
-		"attack": progression.call("get_upgrade_cost", "attack"),
-		"jump": progression.call("get_upgrade_cost", "jump"),
-		"guard": progression.call("get_upgrade_cost", "guard"),
-		"special": progression.call("get_upgrade_cost", "special"),
-	}
 
 func _update_hud() -> void:
 	if hud == null:

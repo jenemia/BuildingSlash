@@ -11,10 +11,15 @@ config_version=5
 [application]
 
 config/name="BuildingSlash"
-config/version="0.1.10"
-run/main_scene="res://scenes/Main.tscn"
+config/version="0.1.11"
+run/main_scene="res://scenes/Lobby.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
+
+[autoload]
+
+SceneLoader="*res://scripts/main/scene_loader.gd"
+MetaProgression="*res://scripts/meta/meta_progression.gd"
 
 [dotnet]
 
