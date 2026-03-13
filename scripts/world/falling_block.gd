@@ -13,6 +13,7 @@ const BlockData = preload("res://scripts/world/block_data.gd")
 @export var launch_min_force: float = 120.0
 @export var launch_max_force: float = 520.0
 @export var launch_cooldown: float = 0.08
+@export var player_contact_cooldown: float = 0.30
 @export var debug_print: bool = false
 @export_enum("SOFT", "NORMAL", "HARD") var tier_name: String = "NORMAL"
 
@@ -32,7 +33,7 @@ var ground_hit_damage: int = 8
 var launch_resistance: float = 0.35
 var _launch_cd_left: float = 0.0
 var _ground_hit_processed: bool = false
-var _player_hit_processed: bool = false
+var _last_player_hit_time_sec: float = -9999.0
 var _color_top: Color = Color(0.93, 0.84, 0.58, 0.95)
 var _color_bottom: Color = Color(0.82, 0.68, 0.34, 0.95)
 
@@ -142,12 +143,16 @@ func _is_ground_collider(collider: Variant) -> bool:
 	return node.name == "Ground" or node.is_in_group("ground")
 
 func _emit_player_hit_once(player: Node, contact_normal: Vector2 = Vector2.UP) -> void:
-	if _player_hit_processed:
+	var now_sec := Time.get_ticks_msec() / 1000.0
+	if now_sec - _last_player_hit_time_sec < player_contact_cooldown:
 		return
-	_player_hit_processed = true
+	_last_player_hit_time_sec = now_sec
+
 	emit_signal("hit_player", self, player)
 	# Backward compatibility
 	emit_signal("touched_player", player)
+
+	_apply_launch(player)
 
 	if player != null and player.has_method("request_contact_bounce"):
 		var boosted := false

@@ -5,6 +5,7 @@ const RewardCalculator = preload("res://scripts/meta/reward_calculator.gd")
 @export var max_hp: int = 100
 @export var hit_player_damage: int = 18
 @export var reached_ground_damage_default: int = 8
+@export var hit_player_dedupe_window_sec: float = 0.30
 @export var debug_damage_events: bool = false
 
 @onready var root: Node2D = get_parent() as Node2D
@@ -99,6 +100,7 @@ func _on_block_hit_player(block: Node, target: Node) -> void:
 		"source_id": block.get_instance_id() if block != null else 0,
 		"cause": "hit_player",
 		"amount": int(ceil(final_damage)),
+		"dedupe_window_sec": hit_player_dedupe_window_sec,
 	})
 
 func _on_block_touched_player(target: Node) -> void:
@@ -129,11 +131,15 @@ func apply_damage(event: Dictionary) -> void:
 	var source_id := int(event.get("source_id", 0))
 	var cause := String(event.get("cause", "unknown"))
 	var amount := maxi(1, int(event.get("amount", 1)))
+	var dedupe_window_sec := float(event.get("dedupe_window_sec", 0.0))
 	var dedupe_key := "%s:%s" % [str(source_id), cause]
-	if source_id != 0 and _damage_dedupe.has(dedupe_key):
-		return
-	if source_id != 0:
-		_damage_dedupe[dedupe_key] = true
+	if source_id != 0 and dedupe_window_sec > 0.0:
+		var now_sec := Time.get_ticks_msec() / 1000.0
+		if _damage_dedupe.has(dedupe_key):
+			var last_sec := float(_damage_dedupe[dedupe_key])
+			if now_sec - last_sec < dedupe_window_sec:
+				return
+		_damage_dedupe[dedupe_key] = now_sec
 
 	hp = maxi(0, hp - amount)
 	if debug_damage_events:
