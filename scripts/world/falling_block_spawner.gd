@@ -20,6 +20,8 @@ const BlockData = preload("res://scripts/world/block_data.gd")
 @export var normal_weight_end: float = 0.45
 @export var hard_weight_start: float = 0.10
 @export var hard_weight_end: float = 0.35
+@export var design_height: float = 1080.0
+@export var visible_block_count: int = 4
 
 var _time_left: float = 0.0
 var _elapsed: float = 0.0
@@ -45,6 +47,8 @@ func _spawn_one() -> void:
 	var block := block_scene.instantiate() as Node2D
 	var spawn_pos := _pick_spawn_position()
 	block.position = spawn_pos
+	if block.has_method("set_layout_floor_width"):
+		block.call("set_layout_floor_width", _compute_target_block_width())
 	if block.has_method("set_block_tier"):
 		block.call("set_block_tier", _pick_tier())
 	get_parent().add_child(block)
@@ -82,8 +86,37 @@ func _pick_spawn_position() -> Vector2:
 	if not use_viewport_spawn_bounds:
 		return Vector2(randf_range(spawn_x_min, spawn_x_max), spawn_y)
 
-	var viewport := get_viewport_rect().size
-	var min_x := viewport_spawn_margin_x
-	var max_x := maxf(min_x + 1.0, viewport.x - viewport_spawn_margin_x)
-	var y := -viewport_spawn_top_offset
+	var viewport_size := get_viewport_rect().size
+	var zoom := _world_zoom(viewport_size)
+	var safe_rect := _safe_area_rect(viewport_size)
+	var world_safe_size := safe_rect.size * zoom
+	var world_safe_left := safe_rect.position.x * zoom
+	var world_safe_top := safe_rect.position.y * zoom
+
+	var min_x := world_safe_left + viewport_spawn_margin_x
+	var max_x := maxf(min_x + 1.0, world_safe_left + world_safe_size.x - viewport_spawn_margin_x)
+	var y := world_safe_top - viewport_spawn_top_offset
 	return Vector2(randf_range(min_x, max_x), y)
+
+func _compute_target_block_width() -> float:
+	var viewport_size := get_viewport_rect().size
+	var zoom := _world_zoom(viewport_size)
+	var safe_rect := _safe_area_rect(viewport_size)
+	var world_safe_width := safe_rect.size.x * zoom
+	var divisor := maxf(1.0, float(visible_block_count))
+	return world_safe_width / divisor
+
+func _world_zoom(viewport_size: Vector2) -> float:
+	if design_height <= 0.0 or viewport_size.y <= 0.0:
+		return 1.0
+	return design_height / viewport_size.y
+
+func _safe_area_rect(viewport_size: Vector2) -> Rect2:
+	var safe := Rect2(Vector2.ZERO, viewport_size)
+	if DisplayServer.has_method("get_display_safe_area"):
+		var safe_rect = DisplayServer.get_display_safe_area()
+		if safe_rect is Rect2i:
+			var sr := safe_rect as Rect2i
+			if sr.size.x > 0 and sr.size.y > 0:
+				safe = Rect2(Vector2(sr.position), Vector2(sr.size))
+	return safe

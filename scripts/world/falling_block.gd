@@ -37,6 +37,11 @@ var _last_player_hit_time_sec: float = -9999.0
 var _color_top: Color = Color(0.93, 0.84, 0.58, 0.95)
 var _color_bottom: Color = Color(0.82, 0.68, 0.34, 0.95)
 
+func set_layout_floor_width(target_width: float) -> void:
+	floor_width = maxf(72.0, target_width)
+	if is_inside_tree():
+		_rebuild_visual_and_collision()
+
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var body_visual: Polygon2D = $BodyVisual
 @onready var touch_sensor: Area2D = $TouchSensor

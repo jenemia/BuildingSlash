@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dt313wg2imqoo"]
+[gd_scene load_steps=4 format=3 uid="uid://dt313wg2imqoo"]
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_dwb4w"]
 [ext_resource type="Script" uid="uid://dngi5afs5fryf" path="res://scripts/main/game_root.gd" id="1_root"]
@@ -8,12 +8,26 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/CombatHUD.tscn" id="5_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ResultPanel.tscn" id="6_result"]
 [ext_resource type="Script" uid="uid://bi8f6r3gqh4yk" path="res://scripts/main/game_flow.gd" id="9_flow"]
+[ext_resource type="Texture2D" path="res://art/combat_bg.png" id="10_bg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_41j68"]
 size = Vector2(1280, 48)
 
 [node name="Node2D" type="Node2D" unique_id=1771244610]
 script = ExtResource("1_root")
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=914221001]
+layer = -20
+
+[node name="Background" type="TextureRect" parent="BackgroundLayer" unique_id=792111245]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("10_bg")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="Player" parent="." unique_id=1383216747 instance=ExtResource("1_dwb4w")]
 
