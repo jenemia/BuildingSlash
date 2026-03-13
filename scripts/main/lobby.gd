@@ -15,7 +15,8 @@ func _ready() -> void:
 		meta_menu.upgrade_requested.connect(_on_upgrade_requested)
 
 func _on_start_battle_pressed() -> void:
-	SceneLoader.go_to_battle()
+	Engine.time_scale = 1.0
+	get_tree().change_scene_to_file("res://scenes/Main.tscn")
 
 func _on_upgrade_requested(key: String) -> void:
 	var bought := bool(MetaProgression.try_buy_upgrade(key))

@@ -150,10 +150,12 @@ func _end_run() -> void:
 	result_panel.call("show_result", survival_sec, score, reward)
 
 func _on_retry_pressed() -> void:
-	SceneLoader.reload_current_scene()
+	Engine.time_scale = 1.0
+	get_tree().reload_current_scene()
 
 func _on_go_lobby_pressed() -> void:
-	SceneLoader.go_to_lobby()
+	Engine.time_scale = 1.0
+	get_tree().change_scene_to_file("res://scenes/Lobby.tscn")
 
 func _apply_progression_to_player() -> void:
 	MetaProgression.apply_to_player(player)
