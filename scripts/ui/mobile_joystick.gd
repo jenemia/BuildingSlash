@@ -6,8 +6,8 @@ signal attack_triggered
 
 @export var base_radius: float = 172.0
 @export var knob_radius: float = 70.0
-@export var left_margin: float = 188.0
-@export var bottom_margin: float = 190.0
+@export var left_margin: float = 164.0
+@export var bottom_margin: float = 170.0
 @export var deadzone: float = 0.18
 @export var jump_threshold: float = 0.62
 @export var attack_button_radius: float = 68.0
@@ -15,7 +15,7 @@ signal attack_triggered
 @export var attack_bottom_margin: float = 156.0
 @export var design_height: float = 1080.0
 @export var ui_scale_min: float = 0.70
-@export var ui_scale_max: float = 1.35
+@export var ui_scale_max: float = 1.20
 
 var _active_touch_id: int = -1
 var _attack_touch_id: int = -1

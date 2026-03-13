@@ -22,6 +22,7 @@ const BlockData = preload("res://scripts/world/block_data.gd")
 @export var hard_weight_end: float = 0.35
 @export var design_height: float = 1080.0
 @export var visible_block_count: int = 4
+@export var block_width_fill_ratio: float = 0.88
 
 var _time_left: float = 0.0
 var _elapsed: float = 0.0
@@ -104,7 +105,8 @@ func _compute_target_block_width() -> float:
 	var safe_rect := _safe_area_rect(viewport_size)
 	var world_safe_width := safe_rect.size.x * zoom
 	var divisor := maxf(1.0, float(visible_block_count))
-	return world_safe_width / divisor
+	var raw_width := world_safe_width / divisor
+	return raw_width * clampf(block_width_fill_ratio, 0.5, 1.0)
 
 func _world_zoom(viewport_size: Vector2) -> float:
 	if design_height <= 0.0 or viewport_size.y <= 0.0:
