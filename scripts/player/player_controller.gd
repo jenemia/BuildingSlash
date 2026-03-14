@@ -27,6 +27,10 @@ var _bounce_cd_left: float = 0.0
 
 func _ready() -> void:
 	add_to_group("player")
+
+	if animated_sprite.sprite_frames.has_animation(&"idle"):
+		animated_sprite.play(&"idle")
+	
 	_validate_input_actions()
 	_validate_visual_nodes()
 

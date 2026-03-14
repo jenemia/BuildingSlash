@@ -25,6 +25,10 @@ MetaProgression="*res://scripts/meta/meta_progression.gd"
 
 project/assembly_name="새 게임 프로젝트"
 
+[gui]
+
+theme/custom="res://themes/ui_theme.tres"
+
 [input]
 
 move_left={
@@ -61,10 +65,6 @@ special={
 [physics]
 
 3d/physics_engine="Jolt Physics"
-
-[gui]
-
-theme/custom="res://themes/ui_theme.tres"
 
 [rendering]
 
